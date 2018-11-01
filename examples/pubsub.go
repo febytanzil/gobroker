@@ -28,9 +28,10 @@ func main() {
 		ServerURL: fmt.Sprintf("amqp://guest:guest@localhost:5672/"),
 		List: []*pubsub.Sub{
 			{
-				Name:    "test",
-				Topic:   "test.fanout",
-				Handler: test,
+				Name:       "test",
+				Topic:      "test.fanout",
+				Handler:    test,
+				MaxRequeue: 10,
 			},
 		},
 		VHost: "vhost",
