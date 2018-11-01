@@ -14,7 +14,7 @@ wrapper for all (to-be) kinds of message brokers.
 Examples are provided in `examples` folder/ package
 ```
 // initialize publisher
-p := pubsub.NewPublisher(pubsub.RabbitMQ, &pubsub.PubConfig{
+p := pubsub.NewPublisher(gobroker.RabbitMQ, &pubsub.PubConfig{
   ServerURL: fmt.Sprintf("amqp://guest:guest@localhost:5672/"),
   VHost:     "vhost",
 })
@@ -23,7 +23,7 @@ p.Publish("test.fanout", "msg"+t.String())
 ```
 ```
 // register subscriber(s) & run it
-s := pubsub.NewSubscriber(pubsub.RabbitMQ, &pubsub.SubConfig{
+s := pubsub.NewSubscriber(gobroker.RabbitMQ, &pubsub.SubConfig{
   ServerURL: fmt.Sprintf("amqp://guest:guest@localhost:5672/"),
   List: []*pubsub.Sub{
     {

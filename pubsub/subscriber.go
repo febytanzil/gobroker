@@ -33,21 +33,21 @@ type SubConfig struct {
 type defaultSubscriber struct {
 	engine []worker
 	config *SubConfig
-	impl   Implementation
+	impl   gobroker.Implementation
 }
 
 const (
 	defaultMaxRequeue int = 9999
 )
 
-func NewSubscriber(impl Implementation, cfg *SubConfig) Subscriber {
+func NewSubscriber(impl gobroker.Implementation, cfg *SubConfig) Subscriber {
 	switch impl {
-	case RabbitMQ:
+	case gobroker.RabbitMQ:
 		return &defaultSubscriber{
 			config: cfg,
-			impl:   RabbitMQ,
+			impl:   gobroker.RabbitMQ,
 		}
-	case Kafka:
+	case gobroker.Kafka:
 		return nil
 	default:
 		return nil
@@ -57,7 +57,7 @@ func NewSubscriber(impl Implementation, cfg *SubConfig) Subscriber {
 func (d *defaultSubscriber) Start() {
 	d.engine = make([]worker, len(d.config.List))
 	switch d.impl {
-	case RabbitMQ:
+	case gobroker.RabbitMQ:
 		for i, v := range d.config.List {
 			d.engine[i] = newRabbitMQWorker(d.config.ServerURL, d.config.VHost)
 			if 0 > v.MaxRequeue {
@@ -65,7 +65,7 @@ func (d *defaultSubscriber) Start() {
 			}
 			go d.engine[i].Consume(v.Name, v.Topic, v.MaxRequeue, v.Handler)
 		}
-	case Kafka:
+	case gobroker.Kafka:
 
 	default:
 

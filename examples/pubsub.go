@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	p := pubsub.NewPublisher(pubsub.RabbitMQ, &pubsub.PubConfig{
+	p := pubsub.NewPublisher(gobroker.RabbitMQ, &pubsub.PubConfig{
 		ServerURL: fmt.Sprintf("amqp://guest:guest@localhost:5672/"),
 		VHost:     "vhost",
 	})
@@ -24,7 +24,7 @@ func main() {
 		}
 	}()
 
-	s := pubsub.NewSubscriber(pubsub.RabbitMQ, &pubsub.SubConfig{
+	s := pubsub.NewSubscriber(gobroker.RabbitMQ, &pubsub.SubConfig{
 		ServerURL: fmt.Sprintf("amqp://guest:guest@localhost:5672/"),
 		List: []*pubsub.Sub{
 			{

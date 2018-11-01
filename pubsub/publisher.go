@@ -1,5 +1,7 @@
 package pubsub
 
+import "github.com/febytanzil/gobroker"
+
 type Publisher interface {
 	Publish(topic string, message interface{}) error
 }
@@ -9,18 +11,11 @@ type PubConfig struct {
 	VHost     string
 }
 
-type Implementation int
-
-const (
-	RabbitMQ = Implementation(iota)
-	Kafka
-)
-
-func NewPublisher(impl Implementation, cfg *PubConfig) Publisher {
+func NewPublisher(impl gobroker.Implementation, cfg *PubConfig) Publisher {
 	switch impl {
-	case RabbitMQ:
+	case gobroker.RabbitMQ:
 		return newRabbitMQPub(cfg)
-	case Kafka:
+	case gobroker.Kafka:
 		return nil
 	default:
 		return nil
