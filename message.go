@@ -11,4 +11,5 @@ type Implementation int
 const (
 	RabbitMQ = Implementation(iota)
 	Kafka
+	Google
 )

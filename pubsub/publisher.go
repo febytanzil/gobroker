@@ -17,6 +17,8 @@ func NewPublisher(impl gobroker.Implementation, cfg *PubConfig) Publisher {
 		return newRabbitMQPub(cfg)
 	case gobroker.Kafka:
 		return nil
+	case gobroker.Google:
+		return newGooglePub()
 	default:
 		return nil
 	}
