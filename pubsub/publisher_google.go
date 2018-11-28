@@ -3,15 +3,15 @@ package pubsub
 import (
 	"cloud.google.com/go/pubsub"
 	"context"
-	"log"
 	"encoding/json"
+	"log"
 	"sync"
-	)
+)
 
 type googlePub struct {
-	c *pubsub.Client
+	c      *pubsub.Client
 	topics *sync.Map
-	m sync.Mutex
+	m      sync.Mutex
 }
 
 func newGooglePub(cfg *PubConfig) *googlePub {
@@ -21,7 +21,7 @@ func newGooglePub(cfg *PubConfig) *googlePub {
 		log.Fatal("failed to initialize google publisher", err)
 	}
 	return &googlePub{
-		c: client,
+		c:      client,
 		topics: &sync.Map{},
 	}
 }
