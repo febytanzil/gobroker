@@ -41,16 +41,9 @@ const (
 )
 
 func NewSubscriber(impl gobroker.Implementation, cfg *SubConfig) Subscriber {
-	switch impl {
-	case gobroker.RabbitMQ:
-		return &defaultSubscriber{
-			config: cfg,
-			impl:   gobroker.RabbitMQ,
-		}
-	case gobroker.Kafka:
-		return nil
-	default:
-		return nil
+	return &defaultSubscriber{
+		config: cfg,
+		impl:   impl,
 	}
 }
 
@@ -65,8 +58,14 @@ func (d *defaultSubscriber) Start() {
 			}
 			go d.engine[i].Consume(v.Name, v.Topic, v.MaxRequeue, v.Handler)
 		}
-	case gobroker.Kafka:
-
+	case gobroker.Google:
+		for i, v := range d.config.List {
+			d.engine[i] = newGoogleWorker(d.config.VHost)
+			if 0 > v.MaxRequeue {
+				v.MaxRequeue = defaultMaxRequeue
+			}
+			go d.engine[i].Consume(v.Name, v.Topic, v.MaxRequeue, v.Handler)
+		}
 	default:
 
 	}
