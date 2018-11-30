@@ -3,6 +3,7 @@ wrapper for all (to-be) kinds of message brokers.
 
 ## Supported message brokers & patterns
 - RabbitMQ pubsub (*fanout*)
+- Google Clous Pub/Sub
 
 ## Intentions & Features
 - Generic terms & functions to use message brokers
@@ -50,3 +51,6 @@ func test(msg *gobroker.Message) error {
 
 ## Contributing
 Please use a fork to create a pull request
+
+## Offline Contributors
+[ichsanrp](https://github.com/ichsanrp)
