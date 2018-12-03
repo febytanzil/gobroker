@@ -6,24 +6,17 @@ type Publisher interface {
 	Publish(topic string, message interface{}) error
 }
 
-type PubConfig struct {
-	// ServerURL accepts a string to specify message broker server
-	// RabbitMQ - AMQP URI format
-	// Google - Unused
-	ServerURL string
+func NewPublisher(impl gobroker.Implementation, options ...Option) Publisher {
+	c := &config{}
+	for _, o := range options {
+		o(c)
+	}
 
-	// VHost specifies pubsub namespace
-	// RabbitMQ - Virtual Host
-	// Google - ProjectID
-	VHost string
-}
-
-func NewPublisher(impl gobroker.Implementation, cfg *PubConfig) Publisher {
 	switch impl {
 	case gobroker.RabbitMQ:
-		return newRabbitMQPub(cfg)
+		return newRabbitMQPub(c)
 	case gobroker.Google:
-		return newGooglePub(cfg)
+		return newGooglePub(c)
 	default:
 		return nil
 	}

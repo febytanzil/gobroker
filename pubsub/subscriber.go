@@ -16,7 +16,7 @@ type worker interface {
 	Stop() error
 }
 
-type Sub struct {
+type SubHandler struct {
 	Name       string
 	Topic      string
 	Handler    gobroker.Handler
@@ -24,15 +24,10 @@ type Sub struct {
 	MaxRequeue int
 }
 
-type SubConfig struct {
-	List      []*Sub
-	ServerURL string
-	VHost     string
-}
-
 type defaultSubscriber struct {
 	engine []worker
-	config *SubConfig
+	c      *config
+	subs   []*SubHandler
 	impl   gobroker.Implementation
 }
 
@@ -40,27 +35,34 @@ const (
 	defaultMaxRequeue int = 9999
 )
 
-func NewSubscriber(impl gobroker.Implementation, cfg *SubConfig) Subscriber {
-	return &defaultSubscriber{
-		config: cfg,
-		impl:   impl,
+func NewSubscriber(impl gobroker.Implementation, handlers []*SubHandler, options ...Option) Subscriber {
+	c := &config{}
+	for _, o := range options {
+		o(c)
 	}
+	s := &defaultSubscriber{
+		c:    c,
+		subs: handlers,
+		impl: impl,
+	}
+
+	return s
 }
 
 func (d *defaultSubscriber) Start() {
-	d.engine = make([]worker, len(d.config.List))
+	d.engine = make([]worker, len(d.subs))
 	switch d.impl {
 	case gobroker.RabbitMQ:
-		for i, v := range d.config.List {
-			d.engine[i] = newRabbitMQWorker(d.config.ServerURL, d.config.VHost)
+		for i, v := range d.subs {
+			d.engine[i] = newRabbitMQWorker(d.c.serverURL, d.c.vHost)
 			if 0 > v.MaxRequeue {
 				v.MaxRequeue = defaultMaxRequeue
 			}
 			go d.engine[i].Consume(v.Name, v.Topic, v.MaxRequeue, v.Handler)
 		}
 	case gobroker.Google:
-		for i, v := range d.config.List {
-			d.engine[i] = newGoogleWorker(d.config.VHost)
+		for i, v := range d.subs {
+			d.engine[i] = newGoogleWorker(d.c.projectID, d.c.googleJSONFile)
 			if 0 > v.MaxRequeue {
 				v.MaxRequeue = defaultMaxRequeue
 			}
@@ -72,7 +74,7 @@ func (d *defaultSubscriber) Start() {
 }
 
 func (d *defaultSubscriber) Stop() {
-	for i := range d.config.List {
+	for i := range d.subs {
 		d.engine[i].Stop()
 	}
 }

@@ -1,0 +1,5 @@
+# dep & vendor
+vendor/
+
+# IDEs
+.idea/

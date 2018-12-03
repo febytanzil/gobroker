@@ -80,7 +80,7 @@ func (r *rabbitMQWorker) Consume(queue, exchange string, maxRequeue int, handler
 
 			msg.Ack(false)
 		}
-		log.Println("worker consume deliver ended")
+		log.Println("worker rabbitmq deliver ended")
 	}
 }
 
@@ -140,9 +140,9 @@ func (r *rabbitMQWorker) initConn(queue, exchange string) error {
 	if nil != err {
 		log.Panicln("worker could not bind rabbitmq queue", queue, err)
 	}
-	p := newRabbitMQPub(&PubConfig{
-		ServerURL: r.server,
-		VHost:     r.host,
+	p := newRabbitMQPub(&config{
+		serverURL: r.server,
+		vHost:     r.host,
 	})
 
 	r.conn = conn
