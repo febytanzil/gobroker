@@ -4,6 +4,7 @@ import (
 	"cloud.google.com/go/pubsub"
 	"context"
 	"encoding/json"
+	"google.golang.org/api/option"
 	"log"
 	"sync"
 )
@@ -14,11 +15,11 @@ type googlePub struct {
 	m      sync.Mutex
 }
 
-func newGooglePub(cfg *PubConfig) *googlePub {
+func newGooglePub(cfg *config) *googlePub {
 	ctx := context.Background()
-	client, err := pubsub.NewClient(ctx, cfg.VHost)
+	client, err := pubsub.NewClient(ctx, cfg.projectID, option.WithCredentialsFile(cfg.googleJSONFile))
 	if nil != err {
-		log.Fatal("failed to initialize google publisher", err)
+		log.Fatalln("failed to initialize google publisher", err)
 	}
 	return &googlePub{
 		c:      client,
@@ -32,13 +33,17 @@ func (g *googlePub) Publish(topic string, message interface{}) error {
 		return err
 	}
 
-	t := g.getTopic(topic)
-	ctx := context.Background()
-	result := t.Publish(ctx, &pubsub.Message{
+	return g.publish(topic, &pubsub.Message{
 		Data: data,
 	})
+}
 
-	_, err = result.Get(ctx)
+func (g *googlePub) publish(topic string, message *pubsub.Message) error {
+	ctx := context.Background()
+	t := g.getTopic(topic)
+	result := t.Publish(ctx, message)
+	_, err := result.Get(ctx)
+
 	return err
 }
 

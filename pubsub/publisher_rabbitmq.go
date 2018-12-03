@@ -15,8 +15,7 @@ type rabbitMQPub struct {
 	m       *sync.Mutex
 	cm      *sync.Mutex
 	msgQ    chan rabbitMQPubMsg
-	server  string
-	host    string
+	config  *config
 	state   int32
 }
 
@@ -37,11 +36,10 @@ const (
 	stateConnected
 )
 
-func newRabbitMQPub(cfg *PubConfig) *rabbitMQPub {
+func newRabbitMQPub(cfg *config) *rabbitMQPub {
 	return &rabbitMQPub{
 		channel: &sync.Map{},
-		server:  cfg.ServerURL,
-		host:    cfg.VHost,
+		config:  cfg,
 		m:       &sync.Mutex{},
 		cm:      &sync.Mutex{},
 		msgQ:    make(chan rabbitMQPubMsg),
@@ -170,9 +168,9 @@ func (r *rabbitMQPub) connect() error {
 		return nil
 	}
 
-	conn, err := amqp.DialConfig(r.server, amqp.Config{
+	conn, err := amqp.DialConfig(r.config.serverURL, amqp.Config{
 		Heartbeat: 10 * time.Second,
-		Vhost:     r.host,
+		Vhost:     r.config.vHost,
 	})
 	if nil != err {
 		return err
