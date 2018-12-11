@@ -1,4 +1,4 @@
-package main
+package pubsub
 
 import (
 	"github.com/febytanzil/gobroker"
@@ -10,7 +10,7 @@ import (
 	"errors"
 )
 
-func main() {
+func main_rmq() {
 	p := pubsub.NewPublisher(gobroker.Google, pubsub.GoogleJSONFile("gcp-project-id", "/path/to/google/application/credentials/cred.json"))
 
 	ticker := time.NewTicker(time.Second)

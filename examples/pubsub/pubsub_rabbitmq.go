@@ -1,4 +1,4 @@
-package main
+package pubsub
 
 import (
 	"github.com/febytanzil/gobroker"
@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func main() {
+func main_google() {
 	p := pubsub.NewPublisher(gobroker.RabbitMQ, pubsub.RabbitMQAMPQ("amqp://guest:guest@localhost:5672/", "vhost"))
 
 	ticker := time.NewTicker(time.Second)
