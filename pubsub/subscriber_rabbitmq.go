@@ -54,7 +54,8 @@ func (r *rabbitMQWorker) Consume(queue, exchange string, maxRequeue int, handler
 			}
 
 			err = handler(&gobroker.Message{
-				Body: msg.Body,
+				Body:     msg.Body,
+				Attempts: int(count),
 			})
 			if nil != err {
 				count++
