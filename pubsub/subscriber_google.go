@@ -70,7 +70,8 @@ func (g *googleWorker) Consume(name, topic string, maxRequeue int, handler gobro
 				log.Printf("maxRequeue limit msg [%s|%s|%s|%d]\n", topic, name, string(message.Data), count)
 			} else {
 				handlerErr = handler(&gobroker.Message{
-					Body: message.Data,
+					Body:     message.Data,
+					Attempts: count,
 				})
 				if nil != handlerErr {
 					count++

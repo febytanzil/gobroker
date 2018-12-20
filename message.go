@@ -1,7 +1,8 @@
 package gobroker
 
 type Message struct {
-	Body []byte
+	Body     []byte
+	Attempts int
 }
 
 type Handler func(msg *Message) error
