@@ -10,7 +10,8 @@ wrapper for all (to-be) kinds of message brokers.
 - Generic terms & functions to use message brokers
 - Auto reconnection
 - Limit & requeue messages
-- Concurrent subscribers in single service (*TODO*)
+- Concurrent subscribers
+- Support for mockgen unit-testing
 
 ## Usage
 Complete examples are provided in `examples` folder/ package
