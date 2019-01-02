@@ -55,21 +55,27 @@ func (d *defaultSubscriber) Start() {
 	case gobroker.RabbitMQ:
 		for i, v := range d.subs {
 			d.engine[i] = newRabbitMQWorker(d.c.serverURL, d.c.vHost)
-			if 0 > v.MaxRequeue {
-				v.MaxRequeue = defaultMaxRequeue
-			}
-			go d.engine[i].Consume(v.Name, v.Topic, v.MaxRequeue, v.Handler)
+			d.run(i, v)
 		}
 	case gobroker.Google:
 		for i, v := range d.subs {
 			d.engine[i] = newGoogleWorker(d.c.projectID, d.c.googleJSONFile)
-			if 0 > v.MaxRequeue {
-				v.MaxRequeue = defaultMaxRequeue
-			}
-			go d.engine[i].Consume(v.Name, v.Topic, v.MaxRequeue, v.Handler)
+			d.run(i, v)
 		}
 	default:
 
+	}
+}
+
+func (d *defaultSubscriber) run(index int, sub *SubHandler) {
+	if 0 > sub.MaxRequeue {
+		sub.MaxRequeue = defaultMaxRequeue
+	}
+	if 0 >= sub.Concurrent {
+		sub.Concurrent = 1
+	}
+	for i := 0; i < sub.Concurrent; i++ {
+		go d.engine[index].Consume(sub.Name, sub.Topic, sub.MaxRequeue, sub.Handler)
 	}
 }
 
