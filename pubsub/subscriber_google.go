@@ -47,9 +47,10 @@ func (g *googleWorker) Consume(name, topic string, maxRequeue int, handler gobro
 					Topic: g.c.Topic(topic),
 				})
 				if nil != err {
+					// error usually race condition of creating new subscriber
+					// let this continue to retry
 					log.Println("worker failed to create new subscription", err)
-					g.Stop()
-					break
+					continue
 				}
 			}
 		} else {
