@@ -139,7 +139,7 @@ func (r *rabbitMQWorker) initConn(queue, exchange string) error {
 	}
 
 	err = ch.Qos(
-		1,     // prefetch count
+		3,     // prefetch count
 		0,     // prefetch size
 		false, // global
 	)
