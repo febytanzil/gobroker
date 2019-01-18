@@ -1,11 +1,12 @@
 package pubsub
 
 import (
-	"github.com/febytanzil/gobroker"
-	"github.com/streadway/amqp"
 	"log"
 	"sync/atomic"
 	"time"
+
+	"github.com/febytanzil/gobroker"
+	"github.com/streadway/amqp"
 )
 
 type rabbitMQWorker struct {
@@ -135,6 +136,15 @@ func (r *rabbitMQWorker) initConn(queue, exchange string) error {
 	)
 	if nil != err {
 		log.Panicln("worker could not declare rabbitmq queue", queue, err)
+	}
+
+	err = ch.Qos(
+		1,     // prefetch count
+		0,     // prefetch size
+		false, // global
+	)
+	if nil != err {
+		log.Panicln("worker could not declare rabbitmq Qos", queue, err)
 	}
 
 	err = ch.QueueBind(q.Name, "", exchange, false, nil)
