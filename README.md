@@ -9,7 +9,7 @@ wrapper for all (to-be) kinds of message brokers.
 ## Intentions & Features
 - Generic terms & functions to use message brokers
 - Auto reconnection
-- Limit & requeue messages
+- Limit & requeue messages*
 - Concurrent subscribers
 - Support for mockgen unit-testing
 
@@ -72,8 +72,12 @@ func testGoogle(msg *gobroker.Message) error {
 }
 ```
 
+## Notes
+Due to requeue limiter, the behavior both in RabbitMQ & Google Pub/Sub is changed to republish to the topic with additional header that contains counter to make this possible
+
 ## Contributing
 Please use a fork to create a pull request
 
-## Offline Contributors
-[ichsanrp](https://github.com/ichsanrp)
+## Contributors
+- [ichsanrp](https://github.com/ichsanrp)
+- [jonathanhaposan](https://github.com/jonathanhaposan)

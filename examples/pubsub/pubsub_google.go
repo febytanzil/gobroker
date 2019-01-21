@@ -10,7 +10,7 @@ import (
 	"errors"
 )
 
-func main_rmq() {
+func main_google() {
 	p := pubsub.NewPublisher(gobroker.Google, pubsub.GoogleJSONFile("gcp-project-id", "/path/to/google/application/credentials/cred.json"))
 
 	ticker := time.NewTicker(time.Second)
