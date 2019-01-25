@@ -40,26 +40,39 @@ func (g *googlePub) Publish(topic string, message interface{}) error {
 
 func (g *googlePub) publish(topic string, message *pubsub.Message) error {
 	ctx := context.Background()
-	t := g.getTopic(topic)
+	t, err := g.getTopic(topic)
+	if nil != err {
+		return err
+	}
+
 	result := t.Publish(ctx, message)
-	_, err := result.Get(ctx)
+	_, err = result.Get(ctx)
 
 	return err
 }
 
-func (g *googlePub) getTopic(topic string) *pubsub.Topic {
+func (g *googlePub) getTopic(topic string) (*pubsub.Topic, error) {
+	var err error
+
 	if t, exist := g.topics.Load(topic); exist {
-		return t.(*pubsub.Topic)
+		return t.(*pubsub.Topic), err
 	}
 	g.m.Lock()
 	defer g.m.Unlock()
 
 	if t, exist := g.topics.Load(topic); exist {
-		return t.(*pubsub.Topic)
+		return t.(*pubsub.Topic), err
 	}
 
+	ctx := context.Background()
 	t := g.c.Topic(topic)
+	if exist, _ := t.Exists(ctx); !exist {
+		t, err = g.c.CreateTopic(ctx, topic)
+		if nil != err {
+			return nil, err
+		}
+	}
 	g.topics.Store(topic, t)
 
-	return t
+	return t, err
 }

@@ -25,10 +25,10 @@ type SubHandler struct {
 }
 
 type defaultSubscriber struct {
-	engine []worker
-	c      *config
-	subs   []*SubHandler
-	impl   gobroker.Implementation
+	workers []worker
+	c       *config
+	subs    []*SubHandler
+	impl    gobroker.Implementation
 }
 
 const (
@@ -50,16 +50,16 @@ func NewSubscriber(impl gobroker.Implementation, handlers []*SubHandler, options
 }
 
 func (d *defaultSubscriber) Start() {
-	d.engine = make([]worker, len(d.subs))
+	d.workers = make([]worker, len(d.subs))
 	switch d.impl {
 	case gobroker.RabbitMQ:
 		for i, v := range d.subs {
-			d.engine[i] = newRabbitMQWorker(d.c.serverURL, d.c.vHost)
+			d.workers[i] = newRabbitMQWorker(d.c.serverURL, d.c.vHost)
 			d.run(i, v)
 		}
 	case gobroker.Google:
 		for i, v := range d.subs {
-			d.engine[i] = newGoogleWorker(d.c.projectID, d.c.googleJSONFile)
+			d.workers[i] = newGoogleWorker(d.c.projectID, d.c.googleJSONFile)
 			d.run(i, v)
 		}
 	default:
@@ -75,12 +75,14 @@ func (d *defaultSubscriber) run(index int, sub *SubHandler) {
 		sub.Concurrent = 1
 	}
 	for i := 0; i < sub.Concurrent; i++ {
-		go d.engine[index].Consume(sub.Name, sub.Topic, sub.MaxRequeue, sub.Handler)
+		go d.workers[index].Consume(sub.Name, sub.Topic, sub.MaxRequeue, sub.Handler)
 	}
 }
 
 func (d *defaultSubscriber) Stop() {
-	for i := range d.subs {
-		d.engine[i].Stop()
+	for range d.subs {
+		for j := range d.workers {
+			d.workers[j].Stop()
+		}
 	}
 }
