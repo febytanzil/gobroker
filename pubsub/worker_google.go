@@ -8,6 +8,7 @@ import (
 	"log"
 	"strconv"
 	"sync/atomic"
+	"fmt"
 )
 
 type googleWorker struct {
@@ -40,11 +41,22 @@ func (g *googleWorker) Consume(name, topic string, maxRequeue int, handler gobro
 			break
 		}
 		ctx := context.Background()
-		sub := g.c.Subscription(name)
+		subName := fmt.Sprintf("%s-%s", topic, name)
+		sub := g.c.Subscription(subName)
 		if exist, err := sub.Exists(ctx); nil == err {
 			if !exist {
-				sub, err = g.c.CreateSubscription(ctx, name, pubsub.SubscriptionConfig{
-					Topic: g.c.Topic(topic),
+				t := g.c.Topic(topic)
+				if exist, err = t.Exists(ctx); !exist {
+					t, err = g.c.CreateTopic(ctx, topic)
+					if nil != err {
+						// error usually race condition of creating new topic
+						// let this continue to retry
+						log.Println("worker failed to create new topic", err)
+						continue
+					}
+				}
+				sub, err = g.c.CreateSubscription(ctx, subName, pubsub.SubscriptionConfig{
+					Topic: t,
 				})
 				if nil != err {
 					// error usually race condition of creating new subscriber
@@ -59,7 +71,7 @@ func (g *googleWorker) Consume(name, topic string, maxRequeue int, handler gobro
 			break
 		}
 
-		log.Printf("worker connection initialized: topic[%s] consumer[%s]\n", topic, name)
+		log.Printf("worker connection initialized: topic[%s] consumer[%s]\n", topic, subName)
 		cctx, cancel := context.WithCancel(ctx)
 		err := sub.Receive(cctx, func(ctx context.Context, message *pubsub.Message) {
 			var handlerErr error
@@ -68,7 +80,7 @@ func (g *googleWorker) Consume(name, topic string, maxRequeue int, handler gobro
 				count, _ = strconv.Atoi(s)
 			}
 			if count > maxRequeue {
-				log.Printf("maxRequeue limit msg [%s|%s|%s|%d]\n", topic, name, string(message.Data), count)
+				log.Printf("maxRequeue limit msg [%s|%s|%d]\n", subName, string(message.Data), count)
 			} else {
 				handlerErr = handler(&gobroker.Message{
 					Body:     message.Data,
@@ -85,7 +97,7 @@ func (g *googleWorker) Consume(name, topic string, maxRequeue int, handler gobro
 						Attributes: message.Attributes,
 					})
 					if nil != err {
-						log.Printf("failed to requeue msg [%s|%s|%s|%s|%d] err: %s\n", topic, name, message.ID, string(message.Data), count, err)
+						log.Printf("failed to requeue msg [%s|%s|%s|%d] err: %s\n", subName, message.ID, string(message.Data), count, err)
 					}
 				}
 			}
