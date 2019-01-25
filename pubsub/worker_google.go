@@ -64,6 +64,9 @@ func (g *googleWorker) Consume(name, topic string, maxRequeue int, handler gobro
 					log.Println("worker failed to create new subscription", err)
 					continue
 				}
+				sub.ReceiveSettings = pubsub.ReceiveSettings{
+					// TODO setting inflight
+				}
 			}
 		} else {
 			log.Println("worker failed to initialize", err)

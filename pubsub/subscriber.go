@@ -17,11 +17,12 @@ type worker interface {
 }
 
 type SubHandler struct {
-	Name       string
-	Topic      string
-	Handler    gobroker.Handler
-	Concurrent int
-	MaxRequeue int
+	Name        string
+	Topic       string
+	Handler     gobroker.Handler
+	Concurrent  int
+	MaxRequeue  int
+	MaxInFlight int
 }
 
 type defaultSubscriber struct {
@@ -67,6 +68,7 @@ func (d *defaultSubscriber) Start() {
 	}
 }
 
+// TODO refactor every impl has diff way to do concurrent
 func (d *defaultSubscriber) run(index int, sub *SubHandler) {
 	if 0 > sub.MaxRequeue {
 		sub.MaxRequeue = defaultMaxRequeue
