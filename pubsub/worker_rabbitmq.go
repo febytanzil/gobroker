@@ -16,12 +16,14 @@ type rabbitMQWorker struct {
 	host      string
 	pub       *rabbitMQPub
 	isStopped int32
+	qos       int
 }
 
-func newRabbitMQWorker(server, vhost string) *rabbitMQWorker {
+func newRabbitMQWorker(server, vhost string, maxInFlight int) *rabbitMQWorker {
 	return &rabbitMQWorker{
 		server: server,
 		host:   vhost,
+		qos:    maxInFlight,
 	}
 }
 
@@ -138,8 +140,12 @@ func (r *rabbitMQWorker) initConn(queue, exchange string) error {
 		log.Panicln("worker could not declare rabbitmq queue", queue, err)
 	}
 
+	qos := 3
+	if 0 < r.qos {
+		qos = r.qos
+	}
 	err = ch.Qos(
-		3,     // prefetch count
+		qos,   // prefetch count
 		0,     // prefetch size
 		false, // global
 	)

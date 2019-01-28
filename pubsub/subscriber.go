@@ -17,11 +17,12 @@ type worker interface {
 }
 
 type SubHandler struct {
-	Name       string
-	Topic      string
-	Handler    gobroker.Handler
-	Concurrent int
-	MaxRequeue int
+	Name        string
+	Topic       string
+	Handler     gobroker.Handler
+	Concurrent  int
+	MaxRequeue  int
+	MaxInFlight int
 }
 
 type defaultSubscriber struct {
@@ -54,12 +55,12 @@ func (d *defaultSubscriber) Start() {
 	switch d.impl {
 	case gobroker.RabbitMQ:
 		for i, v := range d.subs {
-			d.workers[i] = newRabbitMQWorker(d.c.serverURL, d.c.vHost)
+			d.workers[i] = newRabbitMQWorker(d.c.serverURL, d.c.vHost, v.MaxInFlight)
 			d.run(i, v)
 		}
 	case gobroker.Google:
 		for i, v := range d.subs {
-			d.workers[i] = newGoogleWorker(d.c.projectID, d.c.googleJSONFile)
+			d.workers[i] = newGoogleWorker(d.c.projectID, d.c.googleJSONFile, v.MaxInFlight)
 			d.run(i, v)
 		}
 	default:

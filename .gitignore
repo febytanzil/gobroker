@@ -3,3 +3,6 @@ vendor/
 
 # IDEs
 .idea/
+
+# other files
+**.json

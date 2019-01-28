@@ -3,22 +3,23 @@ package pubsub
 import (
 	"cloud.google.com/go/pubsub"
 	"context"
+	"fmt"
 	"github.com/febytanzil/gobroker"
 	"google.golang.org/api/option"
 	"log"
 	"strconv"
 	"sync/atomic"
-	"fmt"
 )
 
 type googleWorker struct {
-	c         *pubsub.Client
-	projectID string
-	isStopped int32
-	pub       *googlePub
+	c              *pubsub.Client
+	projectID      string
+	isStopped      int32
+	pub            *googlePub
+	maxOutstanding int
 }
 
-func newGoogleWorker(projectID, credFile string) *googleWorker {
+func newGoogleWorker(projectID, credFile string, maxInFlight int) *googleWorker {
 	ctx := context.Background()
 	client, err := pubsub.NewClient(ctx, projectID, option.WithCredentialsFile(credFile))
 	if nil != err {
@@ -31,6 +32,7 @@ func newGoogleWorker(projectID, credFile string) *googleWorker {
 			projectID:      projectID,
 			googleJSONFile: credFile,
 		}),
+		maxOutstanding: maxInFlight,
 	}
 }
 
@@ -69,6 +71,14 @@ func (g *googleWorker) Consume(name, topic string, maxRequeue int, handler gobro
 			log.Println("worker failed to initialize", err)
 			g.Stop()
 			break
+		}
+
+		maxOutstanding := 1
+		if 0 < g.maxOutstanding {
+			maxOutstanding = g.maxOutstanding
+		}
+		sub.ReceiveSettings = pubsub.ReceiveSettings{
+			MaxOutstandingMessages: maxOutstanding,
 		}
 
 		log.Printf("worker connection initialized: topic[%s] consumer[%s]\n", topic, subName)

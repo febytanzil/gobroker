@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func main_google() {
+func main_rmq() {
 	p := pubsub.NewPublisher(gobroker.RabbitMQ, pubsub.RabbitMQAMPQ("amqp://guest:guest@localhost:5672/", "vhost"))
 
 	ticker := time.NewTicker(time.Second)
@@ -26,6 +26,7 @@ func main_google() {
 			Topic:      "test.fanout",
 			Handler:    testRMQ,
 			MaxRequeue: 10,
+			Concurrent: 2,
 		},
 	}, pubsub.RabbitMQAMPQ("amqp://guest:guest@localhost:5672/", "vhost"))
 
