@@ -55,12 +55,12 @@ func (d *defaultSubscriber) Start() {
 	switch d.impl {
 	case gobroker.RabbitMQ:
 		for i, v := range d.subs {
-			d.workers[i] = newRabbitMQWorker(d.c.serverURL, d.c.vHost)
+			d.workers[i] = newRabbitMQWorker(d.c.serverURL, d.c.vHost, v.MaxInFlight)
 			d.run(i, v)
 		}
 	case gobroker.Google:
 		for i, v := range d.subs {
-			d.workers[i] = newGoogleWorker(d.c.projectID, d.c.googleJSONFile)
+			d.workers[i] = newGoogleWorker(d.c.projectID, d.c.googleJSONFile, v.MaxInFlight)
 			d.run(i, v)
 		}
 	default:
@@ -68,7 +68,6 @@ func (d *defaultSubscriber) Start() {
 	}
 }
 
-// TODO refactor every impl has diff way to do concurrent
 func (d *defaultSubscriber) run(index int, sub *SubHandler) {
 	if 0 > sub.MaxRequeue {
 		sub.MaxRequeue = defaultMaxRequeue
