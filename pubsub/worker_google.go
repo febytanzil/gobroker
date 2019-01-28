@@ -66,19 +66,19 @@ func (g *googleWorker) Consume(name, topic string, maxRequeue int, handler gobro
 					log.Println("worker failed to create new subscription", err)
 					continue
 				}
-
-				maxOutstanding := 1
-				if 0 < g.maxOutstanding {
-					maxOutstanding = g.maxOutstanding
-				}
-				sub.ReceiveSettings = pubsub.ReceiveSettings{
-					MaxOutstandingMessages: maxOutstanding,
-				}
 			}
 		} else {
 			log.Println("worker failed to initialize", err)
 			g.Stop()
 			break
+		}
+
+		maxOutstanding := 1
+		if 0 < g.maxOutstanding {
+			maxOutstanding = g.maxOutstanding
+		}
+		sub.ReceiveSettings = pubsub.ReceiveSettings{
+			MaxOutstandingMessages: maxOutstanding,
 		}
 
 		log.Printf("worker connection initialized: topic[%s] consumer[%s]\n", topic, subName)
