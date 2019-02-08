@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.com/febytanzil/gobroker.svg?branch=master)](https://travis-ci.com/febytanzil/gobroker)
 # gobroker
 wrapper for all (to-be) kinds of message brokers.
 
