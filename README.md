@@ -1,10 +1,11 @@
+[![Build Status](https://travis-ci.com/febytanzil/gobroker.svg?branch=master)](https://travis-ci.com/febytanzil/gobroker)
 # gobroker
 wrapper for all (to-be) kinds of message brokers.
 
 ## Supported message brokers & patterns
 ### PubSub
 - RabbitMQ (*fanout*)
-- Google Cloud Pub/Sub
+- Google Cloud Pub/Sub (go v1.9.x or later)
 
 ## Intentions & Features
 - Generic terms & functions to use message brokers
