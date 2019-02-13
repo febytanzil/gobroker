@@ -132,6 +132,7 @@ func (r *rabbitMQPub) listen(msgs <-chan rabbitMQPubMsg) {
 		if nil != err {
 			log.Println("publisher failed to publish message", err)
 			r.close()
+			break
 		}
 		go func(m rabbitMQPubMsg, err error) {
 			m.done <- futurePublish{
@@ -139,6 +140,7 @@ func (r *rabbitMQPub) listen(msgs <-chan rabbitMQPubMsg) {
 			}
 		}(one, err)
 	}
+	log.Println("publisher worker ended")
 }
 
 func (r *rabbitMQPub) publish(exchange string, body []byte, headers amqp.Table, done chan futurePublish) error {
@@ -193,6 +195,5 @@ func (r *rabbitMQPub) close() {
 	}
 	go func() {
 		r.purgeChannel()
-		close(r.msgQ)
 	}()
 }
