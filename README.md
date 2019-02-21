@@ -1,4 +1,7 @@
 [![Build Status](https://travis-ci.com/febytanzil/gobroker.svg?branch=master)](https://travis-ci.com/febytanzil/gobroker)
+[![GitHub release](https://img.shields.io/github/release/febytanzil/gobroker.svg)](https://GitHub.com/febytanzil/gobroker/releases/)
+[![GitHub tag](https://img.shields.io/github/tag/febytanzil/gobroker.svg)](https://GitHub.com/febytanzil/gobroker/tags/)
+[![GitHub license](https://img.shields.io/github/license/febytanzil/gobroker.svg)](https://github.com/febytanzil/gobroker/blob/master/LICENSE)
 # gobroker
 wrapper for all (to-be) kinds of message brokers.
 

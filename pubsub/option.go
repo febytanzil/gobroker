@@ -21,7 +21,7 @@ type config struct {
 	projectID string
 }
 
-func RabbitMQAMPQ(server, vHost string) Option {
+func RabbitMQAMQP(server, vHost string) Option {
 	return func(c *config) {
 		c.serverURL = server
 		c.vHost = vHost

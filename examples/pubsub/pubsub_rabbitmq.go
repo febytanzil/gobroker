@@ -10,7 +10,7 @@ import (
 )
 
 func main_rmq() {
-	p := pubsub.NewPublisher(gobroker.RabbitMQ, pubsub.RabbitMQAMPQ("amqp://guest:guest@localhost:5672/", "vhost"))
+	p := pubsub.NewPublisher(gobroker.RabbitMQ, pubsub.RabbitMQAMQP("amqp://guest:guest@localhost:5672/", "vhost"))
 
 	ticker := time.NewTicker(time.Second)
 	go func() {
@@ -28,7 +28,7 @@ func main_rmq() {
 			MaxRequeue: 10,
 			Concurrent: 2,
 		},
-	}, pubsub.RabbitMQAMPQ("amqp://guest:guest@localhost:5672/", "vhost"))
+	}, pubsub.RabbitMQAMQP("amqp://guest:guest@localhost:5672/", "vhost"))
 
 	s.Start()
 
