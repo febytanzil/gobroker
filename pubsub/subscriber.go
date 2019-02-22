@@ -4,6 +4,7 @@ import (
 	"github.com/febytanzil/gobroker"
 )
 
+// Subscriber provides adapter to subscribe topics
 type Subscriber interface {
 	// Start will spawn workers to subscribe
 	Start()
@@ -16,6 +17,7 @@ type worker interface {
 	Stop() error
 }
 
+// SubHandler defines subscriber configuration
 type SubHandler struct {
 	Name        string
 	Topic       string
@@ -36,6 +38,7 @@ const (
 	defaultMaxRequeue int = 9999
 )
 
+// NewSubscriber implements adapter instance for Subscriber
 func NewSubscriber(impl gobroker.Implementation, handlers []*SubHandler, options ...Option) Subscriber {
 	c := &config{}
 	for _, o := range options {

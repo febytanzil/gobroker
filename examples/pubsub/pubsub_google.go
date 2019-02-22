@@ -1,16 +1,16 @@
 package pubsub
 
 import (
+	"errors"
 	"github.com/febytanzil/gobroker"
 	"github.com/febytanzil/gobroker/pubsub"
 	"log"
 	"os"
 	"os/signal"
 	"time"
-	"errors"
 )
 
-func main_google() {
+func mainGoogle() {
 	p := pubsub.NewPublisher(gobroker.Google, pubsub.GoogleJSONFile("gcp-project-id", "/path/to/google/application/credentials/cred.json"))
 
 	ticker := time.NewTicker(time.Second)

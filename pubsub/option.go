@@ -1,5 +1,6 @@
 package pubsub
 
+// Option configures Publisher & Subscriber
 type Option func(c *config)
 
 type config struct {
@@ -21,13 +22,15 @@ type config struct {
 	projectID string
 }
 
-func RabbitMQAMPQ(server, vHost string) Option {
+// RabbitMQAMQP configures Publisher & Subscriber for RabbitMQ connection
+func RabbitMQAMQP(server, vHost string) Option {
 	return func(c *config) {
 		c.serverURL = server
 		c.vHost = vHost
 	}
 }
 
+// GoogleJSON configures Publisher & Subscriber for Google Cloud Pub/Sub auth using JSON bytes
 func GoogleJSON(projectID string, cred []byte) Option {
 	return func(c *config) {
 		c.googleAppCred = cred
@@ -35,6 +38,7 @@ func GoogleJSON(projectID string, cred []byte) Option {
 	}
 }
 
+// GoogleJSON configures Publisher & Subscriber for Google Cloud Pub/Sub auth using JSON filename
 func GoogleJSONFile(projectID, filename string) Option {
 	return func(c *config) {
 		c.googleJSONFile = filename

@@ -1,11 +1,14 @@
 [![Build Status](https://travis-ci.com/febytanzil/gobroker.svg?branch=master)](https://travis-ci.com/febytanzil/gobroker)
+[![GitHub release](https://img.shields.io/github/release/febytanzil/gobroker.svg)](https://GitHub.com/febytanzil/gobroker/releases/)
+[![GitHub tag](https://img.shields.io/github/tag/febytanzil/gobroker.svg)](https://GitHub.com/febytanzil/gobroker/tags/)
+[![GitHub license](https://img.shields.io/github/license/febytanzil/gobroker.svg)](https://github.com/febytanzil/gobroker/blob/master/LICENSE)
 # gobroker
-wrapper for all (to-be) kinds of message brokers.
+wrapper for all (to-be) kinds of message brokers (go v1.9.x or later)
 
 ## Supported message brokers & patterns
 ### PubSub
 - RabbitMQ (*fanout*)
-- Google Cloud Pub/Sub (go v1.9.x or later)
+- Google Cloud Pub/Sub
 
 ## Intentions & Features
 - Generic terms & functions to use message brokers
@@ -14,16 +17,25 @@ wrapper for all (to-be) kinds of message brokers.
 - Concurrent subscribers
 - Support for mockgen unit-testing
 
+## Install
+```bash
+# go get
+$ go get github.com/febytanzil/gobroker
+
+# dep
+$ dep ensure -add github.com/febytanzil/gobroker
+```
+
 ## Usage
 Complete examples are provided in `examples` folder/ package
 ### RabbitMQ
-```
+```go
 // initialize publisher RabbitMQ
-p := pubsub.NewPublisher(gobroker.RabbitMQ, pubsub.RabbitMQAMPQ("amqp://guest:guest@localhost:5672/", "vhost"))
+p := pubsub.NewPublisher(gobroker.RabbitMQ, pubsub.RabbitMQAMQP("amqp://guest:guest@localhost:5672/", "vhost"))
 
 p.Publish("test.fanout", "msg"+t.String())
 ```
-```
+```go
 // register RabbitMQ subscriber(s) & run it
 s := pubsub.NewSubscriber(gobroker.RabbitMQ, []*pubsub.SubHandler{
     {
@@ -32,18 +44,18 @@ s := pubsub.NewSubscriber(gobroker.RabbitMQ, []*pubsub.SubHandler{
         Handler:    testRMQ,
         MaxRequeue: 10,
     },
-}, pubsub.RabbitMQAMPQ("amqp://guest:guest@localhost:5672/", "vhost"))
+}, pubsub.RabbitMQAMQP("amqp://guest:guest@localhost:5672/", "vhost"))
 
 s.Start()
 ```
 ### Google
-```
+```go
 // initialize publisher Google
 p := pubsub.NewPublisher(gobroker.Google, pubsub.GoogleJSONFile("gcp-project-id", "/path/to/google/application/credentials/cred.json"))
 
 p.Publish("test", "msg"+t.String())
 ```
-```
+```go
 // register Google subscriber(s) & run it
 s := pubsub.NewSubscriber(gobroker.Google, []*pubsub.SubHandler{
 		{
@@ -58,7 +70,7 @@ s := pubsub.NewSubscriber(gobroker.Google, []*pubsub.SubHandler{
 s.Start()
 ```
 ### Creating subcriber/ consumer
-```
+```go
 // subcriber function format
 // return nil will ack the message as success
 // return error will requeue based on config
