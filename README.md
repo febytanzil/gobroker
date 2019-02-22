@@ -3,12 +3,12 @@
 [![GitHub tag](https://img.shields.io/github/tag/febytanzil/gobroker.svg)](https://GitHub.com/febytanzil/gobroker/tags/)
 [![GitHub license](https://img.shields.io/github/license/febytanzil/gobroker.svg)](https://github.com/febytanzil/gobroker/blob/master/LICENSE)
 # gobroker
-wrapper for all (to-be) kinds of message brokers.
+wrapper for all (to-be) kinds of message brokers (go v1.9.x or later)
 
 ## Supported message brokers & patterns
 ### PubSub
 - RabbitMQ (*fanout*)
-- Google Cloud Pub/Sub (go v1.9.x or later)
+- Google Cloud Pub/Sub
 
 ## Intentions & Features
 - Generic terms & functions to use message brokers
