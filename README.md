@@ -17,16 +17,25 @@ wrapper for all (to-be) kinds of message brokers.
 - Concurrent subscribers
 - Support for mockgen unit-testing
 
+## Install
+```bash
+# go get
+$ go get github.com/febytanzil/gobroker
+
+# dep
+$ dep ensure -add github.com/febytanzil/gobroker
+```
+
 ## Usage
 Complete examples are provided in `examples` folder/ package
 ### RabbitMQ
-```
+```go
 // initialize publisher RabbitMQ
 p := pubsub.NewPublisher(gobroker.RabbitMQ, pubsub.RabbitMQAMPQ("amqp://guest:guest@localhost:5672/", "vhost"))
 
 p.Publish("test.fanout", "msg"+t.String())
 ```
-```
+```go
 // register RabbitMQ subscriber(s) & run it
 s := pubsub.NewSubscriber(gobroker.RabbitMQ, []*pubsub.SubHandler{
     {
@@ -40,13 +49,13 @@ s := pubsub.NewSubscriber(gobroker.RabbitMQ, []*pubsub.SubHandler{
 s.Start()
 ```
 ### Google
-```
+```go
 // initialize publisher Google
 p := pubsub.NewPublisher(gobroker.Google, pubsub.GoogleJSONFile("gcp-project-id", "/path/to/google/application/credentials/cred.json"))
 
 p.Publish("test", "msg"+t.String())
 ```
-```
+```go
 // register Google subscriber(s) & run it
 s := pubsub.NewSubscriber(gobroker.Google, []*pubsub.SubHandler{
 		{
@@ -61,7 +70,7 @@ s := pubsub.NewSubscriber(gobroker.Google, []*pubsub.SubHandler{
 s.Start()
 ```
 ### Creating subcriber/ consumer
-```
+```go
 // subcriber function format
 // return nil will ack the message as success
 // return error will requeue based on config
