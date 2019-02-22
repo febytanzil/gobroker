@@ -31,7 +31,7 @@ Complete examples are provided in `examples` folder/ package
 ### RabbitMQ
 ```go
 // initialize publisher RabbitMQ
-p := pubsub.NewPublisher(gobroker.RabbitMQ, pubsub.RabbitMQAMPQ("amqp://guest:guest@localhost:5672/", "vhost"))
+p := pubsub.NewPublisher(gobroker.RabbitMQ, pubsub.RabbitMQAMQP("amqp://guest:guest@localhost:5672/", "vhost"))
 
 p.Publish("test.fanout", "msg"+t.String())
 ```
@@ -44,7 +44,7 @@ s := pubsub.NewSubscriber(gobroker.RabbitMQ, []*pubsub.SubHandler{
         Handler:    testRMQ,
         MaxRequeue: 10,
     },
-}, pubsub.RabbitMQAMPQ("amqp://guest:guest@localhost:5672/", "vhost"))
+}, pubsub.RabbitMQAMQP("amqp://guest:guest@localhost:5672/", "vhost"))
 
 s.Start()
 ```
