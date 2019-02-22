@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func main_rmq() {
+func mainRMQ() {
 	p := pubsub.NewPublisher(gobroker.RabbitMQ, pubsub.RabbitMQAMQP("amqp://guest:guest@localhost:5672/", "vhost"))
 
 	ticker := time.NewTicker(time.Second)
