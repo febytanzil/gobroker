@@ -28,10 +28,11 @@ type SubHandler struct {
 }
 
 type defaultSubscriber struct {
-	workers []worker
-	c       *config
-	subs    []*SubHandler
-	impl    gobroker.Implementation
+	workers   []worker
+	c         *config
+	subs      []*SubHandler
+	impl      gobroker.Implementation
+	namespace string
 }
 
 const (
@@ -39,15 +40,16 @@ const (
 )
 
 // NewSubscriber implements adapter instance for Subscriber
-func NewSubscriber(impl gobroker.Implementation, handlers []*SubHandler, options ...Option) Subscriber {
+func NewSubscriber(impl gobroker.Implementation, namespace string, handlers []*SubHandler, options ...Option) Subscriber {
 	c := &config{}
 	for _, o := range options {
 		o(c)
 	}
 	s := &defaultSubscriber{
-		c:    c,
-		subs: handlers,
-		impl: impl,
+		c:         c,
+		subs:      handlers,
+		impl:      impl,
+		namespace: namespace,
 	}
 
 	return s
@@ -63,7 +65,7 @@ func (d *defaultSubscriber) Start() {
 		}
 	case gobroker.Google:
 		for i, v := range d.subs {
-			d.workers[i] = newGoogleWorker(d.c.projectID, d.c.googleJSONFile, v.MaxInFlight)
+			d.workers[i] = newGoogleWorker(d.c.projectID, d.c.googleJSONFile, d.c.namespace, v.MaxInFlight)
 			d.run(i, v)
 		}
 	default:

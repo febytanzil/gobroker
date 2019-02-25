@@ -21,7 +21,7 @@ type googleWorker struct {
 	maxOutstanding int
 }
 
-func newGoogleWorker(projectID, credFile string, maxInFlight int) *googleWorker {
+func newGoogleWorker(projectID, credFile, namespace string, maxInFlight int) *googleWorker {
 	ctx := context.Background()
 	client, err := pubsub.NewClient(ctx, projectID, option.WithCredentialsFile(credFile))
 	if nil != err {
@@ -35,6 +35,7 @@ func newGoogleWorker(projectID, credFile string, maxInFlight int) *googleWorker 
 			googleJSONFile: credFile,
 		}),
 		maxOutstanding: maxInFlight,
+		namespace:      namespace,
 	}
 }
 
