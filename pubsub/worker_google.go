@@ -1,19 +1,21 @@
 package pubsub
 
 import (
-	"cloud.google.com/go/pubsub"
 	"context"
 	"fmt"
-	"github.com/febytanzil/gobroker"
-	"google.golang.org/api/option"
 	"log"
 	"strconv"
 	"sync/atomic"
+
+	"cloud.google.com/go/pubsub"
+	"github.com/febytanzil/gobroker"
+	"google.golang.org/api/option"
 )
 
 type googleWorker struct {
 	c              *pubsub.Client
 	projectID      string
+	namespace      string
 	isStopped      int32
 	pub            *googlePub
 	maxOutstanding int
@@ -43,13 +45,15 @@ func (g *googleWorker) Consume(name, topic string, maxRequeue int, handler gobro
 			break
 		}
 		ctx := context.Background()
-		subName := fmt.Sprintf("%s-%s", topic, name)
+		subName := fmt.Sprintf("%s-%s-%s", g.namespace, topic, name)
+		topicName := fmt.Sprintf("%s-%s", g.namespace, topic)
+
 		sub := g.c.Subscription(subName)
 		if exist, err := sub.Exists(ctx); nil == err {
 			if !exist {
-				t := g.c.Topic(topic)
+				t := g.c.Topic(topicName)
 				if exist, err = t.Exists(ctx); !exist {
-					t, err = g.c.CreateTopic(ctx, topic)
+					t, err = g.c.CreateTopic(ctx, topicName)
 					if nil != err {
 						// error usually race condition of creating new topic
 						// let this continue to retry
@@ -81,7 +85,7 @@ func (g *googleWorker) Consume(name, topic string, maxRequeue int, handler gobro
 			MaxOutstandingMessages: maxOutstanding,
 		}
 
-		log.Printf("worker connection initialized: topic[%s] consumer[%s]\n", topic, subName)
+		log.Printf("worker connection initialized: topic[%s] consumer[%s]\n", topicName, subName)
 		cctx, cancel := context.WithCancel(ctx)
 		err := sub.Receive(cctx, func(ctx context.Context, message *pubsub.Message) {
 			var handlerErr error
@@ -102,7 +106,7 @@ func (g *googleWorker) Consume(name, topic string, maxRequeue int, handler gobro
 						message.Attributes = make(map[string]string)
 					}
 					message.Attributes["requeue_count"] = strconv.Itoa(count)
-					err := g.pub.publish(topic, &pubsub.Message{
+					err := g.pub.publish(topicName, &pubsub.Message{
 						Data:       message.Data,
 						Attributes: message.Attributes,
 					})

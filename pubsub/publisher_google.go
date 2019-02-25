@@ -1,18 +1,21 @@
 package pubsub
 
 import (
-	"cloud.google.com/go/pubsub"
 	"context"
 	"encoding/json"
-	"google.golang.org/api/option"
+	"fmt"
 	"log"
 	"sync"
+
+	"cloud.google.com/go/pubsub"
+	"google.golang.org/api/option"
 )
 
 type googlePub struct {
-	c      *pubsub.Client
-	topics *sync.Map
-	m      sync.Mutex
+	c         *pubsub.Client
+	topics    *sync.Map
+	m         sync.Mutex
+	namespace string
 }
 
 func newGooglePub(cfg *config) *googlePub {
@@ -22,8 +25,9 @@ func newGooglePub(cfg *config) *googlePub {
 		log.Fatalln("failed to initialize google publisher", err)
 	}
 	return &googlePub{
-		c:      client,
-		topics: &sync.Map{},
+		c:         client,
+		topics:    &sync.Map{},
+		namespace: cfg.namespace,
 	}
 }
 
@@ -33,7 +37,8 @@ func (g *googlePub) Publish(topic string, message interface{}) error {
 		return err
 	}
 
-	return g.publish(topic, &pubsub.Message{
+	topicName := fmt.Sprintf("%s-%s", g.namespace, topic)
+	return g.publish(topicName, &pubsub.Message{
 		Data: data,
 	})
 }
