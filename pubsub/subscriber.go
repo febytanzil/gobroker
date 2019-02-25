@@ -40,16 +40,15 @@ const (
 )
 
 // NewSubscriber implements adapter instance for Subscriber
-func NewSubscriber(impl gobroker.Implementation, namespace string, handlers []*SubHandler, options ...Option) Subscriber {
+func NewSubscriber(impl gobroker.Implementation, handlers []*SubHandler, options ...Option) Subscriber {
 	c := &config{}
 	for _, o := range options {
 		o(c)
 	}
 	s := &defaultSubscriber{
-		c:         c,
-		subs:      handlers,
-		impl:      impl,
-		namespace: namespace,
+		c:    c,
+		subs: handlers,
+		impl: impl,
 	}
 
 	return s
