@@ -28,11 +28,10 @@ type SubHandler struct {
 }
 
 type defaultSubscriber struct {
-	workers   []worker
-	c         *config
-	subs      []*SubHandler
-	impl      gobroker.Implementation
-	namespace string
+	workers []worker
+	c       *config
+	subs    []*SubHandler
+	impl    gobroker.Implementation
 }
 
 const (
