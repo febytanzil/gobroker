@@ -38,6 +38,7 @@ func newGoogleWorker(projectID, credFile, cluster string, maxInFlight int) *goog
 		pub: newGooglePub(&config{
 			projectID:      projectID,
 			googleJSONFile: credFile,
+			cluster:        cluster,
 		}),
 		maxOutstanding: maxInFlight,
 		cluster:        cluster,
