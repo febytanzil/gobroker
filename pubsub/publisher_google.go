@@ -12,10 +12,10 @@ import (
 )
 
 type googlePub struct {
-	c         *pubsub.Client
-	topics    *sync.Map
-	m         sync.Mutex
-	namespace string
+	c       *pubsub.Client
+	topics  *sync.Map
+	m       sync.Mutex
+	cluster string
 }
 
 func newGooglePub(cfg *config) *googlePub {
@@ -24,10 +24,15 @@ func newGooglePub(cfg *config) *googlePub {
 	if nil != err {
 		log.Fatalln("failed to initialize google publisher", err)
 	}
+
+	if cfg.cluster == "" {
+		log.Fatalln("cluster name cannot empty")
+	}
+
 	return &googlePub{
-		c:         client,
-		topics:    &sync.Map{},
-		namespace: cfg.namespace,
+		c:       client,
+		topics:  &sync.Map{},
+		cluster: cfg.cluster,
 	}
 }
 
@@ -37,7 +42,7 @@ func (g *googlePub) Publish(topic string, message interface{}) error {
 		return err
 	}
 
-	topicName := fmt.Sprintf("%s-%s", g.namespace, topic)
+	topicName := fmt.Sprintf("%s-%s", g.cluster, topic)
 	return g.publish(topicName, &pubsub.Message{
 		Data: data,
 	})
