@@ -15,18 +15,23 @@ import (
 type googleWorker struct {
 	c              *pubsub.Client
 	projectID      string
-	namespace      string
+	cluster        string
 	isStopped      int32
 	pub            *googlePub
 	maxOutstanding int
 }
 
-func newGoogleWorker(projectID, credFile, namespace string, maxInFlight int) *googleWorker {
+func newGoogleWorker(projectID, credFile, cluster string, maxInFlight int) *googleWorker {
 	ctx := context.Background()
 	client, err := pubsub.NewClient(ctx, projectID, option.WithCredentialsFile(credFile))
 	if nil != err {
 		log.Fatal("failed to initialize google publisher", err)
 	}
+
+	if cluster == "" {
+		log.Fatalln("cluster name cannot empty")
+	}
+
 	return &googleWorker{
 		c:         client,
 		projectID: projectID,
@@ -35,7 +40,7 @@ func newGoogleWorker(projectID, credFile, namespace string, maxInFlight int) *go
 			googleJSONFile: credFile,
 		}),
 		maxOutstanding: maxInFlight,
-		namespace:      namespace,
+		cluster:        cluster,
 	}
 }
 
@@ -46,8 +51,8 @@ func (g *googleWorker) Consume(name, topic string, maxRequeue int, handler gobro
 			break
 		}
 		ctx := context.Background()
-		subName := fmt.Sprintf("%s-%s-%s", g.namespace, topic, name)
-		topicName := fmt.Sprintf("%s-%s", g.namespace, topic)
+		subName := fmt.Sprintf("%s-%s-%s", g.cluster, topic, name)
+		topicName := fmt.Sprintf("%s-%s", g.cluster, topic)
 
 		sub := g.c.Subscription(subName)
 		if exist, err := sub.Exists(ctx); nil == err {
