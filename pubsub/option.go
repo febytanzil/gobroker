@@ -20,6 +20,9 @@ type config struct {
 
 	// projectID specifies Google Pubsub project-id
 	projectID string
+
+	// namespace separator topic and subscriptions in Google Pubsub
+	namespace string
 }
 
 // RabbitMQAMQP configures Publisher & Subscriber for RabbitMQ connection
@@ -31,17 +34,19 @@ func RabbitMQAMQP(server, vHost string) Option {
 }
 
 // GoogleJSON configures Publisher & Subscriber for Google Cloud Pub/Sub auth using JSON bytes
-func GoogleJSON(projectID string, cred []byte) Option {
+func GoogleJSON(projectID, namespace string, cred []byte) Option {
 	return func(c *config) {
 		c.googleAppCred = cred
 		c.projectID = projectID
+		c.namespace = namespace
 	}
 }
 
-// GoogleJSON configures Publisher & Subscriber for Google Cloud Pub/Sub auth using JSON filename
-func GoogleJSONFile(projectID, filename string) Option {
+// GoogleJSONFile configures Publisher & Subscriber for Google Cloud Pub/Sub auth using JSON filename
+func GoogleJSONFile(projectID, namespace, filename string) Option {
 	return func(c *config) {
 		c.googleJSONFile = filename
 		c.projectID = projectID
+		c.namespace = namespace
 	}
 }

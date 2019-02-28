@@ -63,7 +63,7 @@ func (d *defaultSubscriber) Start() {
 		}
 	case gobroker.Google:
 		for i, v := range d.subs {
-			d.workers[i] = newGoogleWorker(d.c.projectID, d.c.googleJSONFile, v.MaxInFlight)
+			d.workers[i] = newGoogleWorker(d.c.projectID, d.c.googleJSONFile, d.c.namespace, v.MaxInFlight)
 			d.run(i, v)
 		}
 	default:
