@@ -21,7 +21,7 @@ type config struct {
 	// projectID specifies Google Pubsub project-id
 	projectID string
 
-	// namespace separator
+	// namespace separator in Google Pubsub
 	namespace string
 }
 
