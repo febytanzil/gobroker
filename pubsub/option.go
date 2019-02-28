@@ -43,7 +43,7 @@ func GoogleJSON(projectID, namespace string, cred []byte) Option {
 }
 
 // GoogleJSONFile configures Publisher & Subscriber for Google Cloud Pub/Sub auth using JSON filename
-func GoogleJSONFile(projectID, filename, namespace string) Option {
+func GoogleJSONFile(projectID, namespace, filename string) Option {
 	return func(c *config) {
 		c.googleJSONFile = filename
 		c.projectID = projectID

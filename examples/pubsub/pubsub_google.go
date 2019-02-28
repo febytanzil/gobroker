@@ -12,7 +12,7 @@ import (
 )
 
 func mainGoogle() {
-	p := pubsub.NewPublisher(gobroker.Google, pubsub.GoogleJSONFile("gcp-project-id", "/path/to/google/application/credentials/cred.json", "namespace"))
+	p := pubsub.NewPublisher(gobroker.Google, pubsub.GoogleJSONFile("gcp-project-id", "namespace", "/path/to/google/application/credentials/cred.json"))
 
 	ticker := time.NewTicker(time.Second)
 	go func() {
@@ -38,7 +38,7 @@ func mainGoogle() {
 			Concurrent: 3,
 		},
 	},
-		pubsub.GoogleJSONFile("gcp-project-id", "/path/to/google/application/credentials/cred.json", "namespace"))
+		pubsub.GoogleJSONFile("gcp-project-id", "namespace", "/path/to/google/application/credentials/cred.json"))
 
 	s.Start()
 
