@@ -23,6 +23,10 @@ type config struct {
 
 	// cluster separator topic and subscriptions in Google Pubsub
 	cluster string
+
+	// retry counts maximum retry attempts to reconnect to server
+	// 0 means unlimited retry
+	retry int
 }
 
 // RabbitMQAMQP configures Publisher & Subscriber for RabbitMQ connection
@@ -48,5 +52,15 @@ func GoogleJSONFile(projectID, cluster, filename string) Option {
 		c.googleJSONFile = filename
 		c.projectID = projectID
 		c.cluster = cluster
+	}
+}
+
+// MaxReconnect defines retry attempts to reconnect, 0 means unlimited retry
+func MaxReconnect(retry int) Option {
+	return func(c *config) {
+		if 0 > retry {
+			retry = 3
+		}
+		c.retry = retry
 	}
 }

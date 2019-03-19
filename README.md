@@ -51,7 +51,7 @@ s.Start()
 ### Google
 ```go
 // initialize publisher Google
-p := pubsub.NewPublisher(gobroker.Google, pubsub.GoogleJSONFile("gcp-project-id", "/path/to/google/application/credentials/cred.json"))
+p := pubsub.NewPublisher(gobroker.Google, pubsub.GoogleJSONFile("gcp-project-id", "cluster-name", "/path/to/google/application/credentials/cred.json"))
 
 p.Publish("test", "msg"+t.String())
 ```
@@ -65,7 +65,7 @@ s := pubsub.NewSubscriber(gobroker.Google, []*pubsub.SubHandler{
 			MaxRequeue: 10,
 		},
 	},
-		pubsub.GoogleJSONFile("gcp-project-id", "/path/to/google/application/credentials/cred.json"))
+		pubsub.GoogleJSONFile("gcp-project-id", "cluster-name", "/path/to/google/application/credentials/cred.json"))
 		
 s.Start()
 ```

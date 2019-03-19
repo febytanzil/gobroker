@@ -17,17 +17,20 @@ type rabbitMQWorker struct {
 	pub       *rabbitMQPub
 	isStopped int32
 	qos       int
+	retry     int
 }
 
-func newRabbitMQWorker(server, vhost string, maxInFlight int) *rabbitMQWorker {
+func newRabbitMQWorker(server, vhost string, maxInFlight, retry int) *rabbitMQWorker {
 	return &rabbitMQWorker{
 		server: server,
 		host:   vhost,
 		qos:    maxInFlight,
+		retry:  retry,
 	}
 }
 
 func (r *rabbitMQWorker) Consume(queue, exchange string, maxRequeue int, handler gobroker.Handler) {
+	retries := 0
 	for {
 		if 1 == atomic.LoadInt32(&r.isStopped) {
 			log.Println("worker has been stopped")
@@ -35,9 +38,16 @@ func (r *rabbitMQWorker) Consume(queue, exchange string, maxRequeue int, handler
 		}
 
 		if err := r.initConn(queue, exchange); nil != err {
-			log.Println("worker failed to initialize")
+			log.Printf("worker failed to initialize retried [%d] %s \n", retries, err)
+			if 0 == r.retry || r.retry > retries {
+				retries++
+				continue
+			}
 			r.Stop()
 			break
+		} else {
+			// reset retry counter for next possible disconnect
+			retries = 0
 		}
 
 		deliveries, err := r.channel.Consume(queue, "", false, false, false, false, nil)
@@ -107,25 +117,25 @@ func (r *rabbitMQWorker) initConn(queue, exchange string) error {
 		Vhost:     r.host,
 	})
 	if nil != err {
-		log.Panicln("worker could not initialize rabbitmq connection", err)
+		return err
 	}
 
 	ch, err := conn.Channel()
 	if nil != err {
-		log.Panicln("worker could not open rabbitmq channel", err)
+		return err
 	}
 
 	err = ch.ExchangeDeclare(
 		exchange,
-		"fanout", // type
-		true,     // durable
-		false,    // auto-deleted
-		false,    // internal
-		false,    // no-wait
-		nil,      // arguments
+		amqp.ExchangeFanout, // type
+		true,                // durable
+		false,               // auto-deleted
+		false,               // internal
+		false,               // no-wait
+		nil,                 // arguments
 	)
 	if nil != err {
-		log.Panicln("worker could not declare rabbitmq exchange", exchange, err)
+		return err
 	}
 
 	q, err := ch.QueueDeclare(
@@ -137,7 +147,7 @@ func (r *rabbitMQWorker) initConn(queue, exchange string) error {
 		nil,   // arguments
 	)
 	if nil != err {
-		log.Panicln("worker could not declare rabbitmq queue", queue, err)
+		return err
 	}
 
 	qos := 3
@@ -150,12 +160,12 @@ func (r *rabbitMQWorker) initConn(queue, exchange string) error {
 		false, // global
 	)
 	if nil != err {
-		log.Panicln("worker could not declare rabbitmq Qos", queue, err)
+		return err
 	}
 
 	err = ch.QueueBind(q.Name, "", exchange, false, nil)
 	if nil != err {
-		log.Panicln("worker could not bind rabbitmq queue", queue, err)
+		return err
 	}
 	p := newRabbitMQPub(&config{
 		serverURL: r.server,
