@@ -127,12 +127,12 @@ func (r *rabbitMQWorker) initConn(queue, exchange string) error {
 
 	err = ch.ExchangeDeclare(
 		exchange,
-		"fanout", // type
-		true,     // durable
-		false,    // auto-deleted
-		false,    // internal
-		false,    // no-wait
-		nil,      // arguments
+		amqp.ExchangeFanout, // type
+		true,                // durable
+		false,               // auto-deleted
+		false,               // internal
+		false,               // no-wait
+		nil,                 // arguments
 	)
 	if nil != err {
 		return err

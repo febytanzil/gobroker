@@ -65,12 +65,12 @@ func (r *rabbitMQPub) getExchangeChannel(exchange string) (channel *amqp.Channel
 
 				err = channel.ExchangeDeclare(
 					exchange,
-					"fanout", // type
-					true,     // durable
-					false,    // auto-deleted
-					false,    // internal
-					false,    // no-wait
-					nil,      // arguments
+					amqp.ExchangeFanout, // type
+					true,                // durable
+					false,               // auto-deleted
+					false,               // internal
+					false,               // no-wait
+					nil,                 // arguments
 				)
 				if nil == err {
 					r.channel.Store(exchange, channel)
