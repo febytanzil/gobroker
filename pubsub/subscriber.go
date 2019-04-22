@@ -2,6 +2,7 @@ package pubsub
 
 import (
 	"github.com/febytanzil/gobroker"
+	"time"
 )
 
 // Subscriber provides adapter to subscribe topics
@@ -25,6 +26,9 @@ type SubHandler struct {
 	Concurrent  int
 	MaxRequeue  int
 	MaxInFlight int
+
+	// Timeout configures an in-flight message ack deadline processed by subscriber
+	Timeout time.Duration
 }
 
 type defaultSubscriber struct {
@@ -63,7 +67,7 @@ func (d *defaultSubscriber) Start() {
 		}
 	case gobroker.Google:
 		for i, v := range d.subs {
-			d.workers[i] = newGoogleWorker(d.c.projectID, d.c.googleJSONFile, d.c.cluster, v.MaxInFlight)
+			d.workers[i] = newGoogleWorker(d.c, v.MaxInFlight, v.Timeout)
 			d.run(i, v)
 		}
 	default:
