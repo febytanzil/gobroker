@@ -10,6 +10,7 @@ import (
 	"cloud.google.com/go/pubsub"
 	"github.com/febytanzil/gobroker"
 	"google.golang.org/api/option"
+	"time"
 )
 
 type googleWorker struct {
@@ -19,29 +20,36 @@ type googleWorker struct {
 	isStopped      int32
 	pub            *googlePub
 	maxOutstanding int
+	timeout        time.Duration
 }
 
-func newGoogleWorker(projectID, credFile, cluster string, maxInFlight int) *googleWorker {
+const maxPubSubTimeout = 10 * time.Minute
+
+func newGoogleWorker(c *config, maxInFlight int, timeout time.Duration) *googleWorker {
 	ctx := context.Background()
-	client, err := pubsub.NewClient(ctx, projectID, option.WithCredentialsFile(credFile))
+	client, err := pubsub.NewClient(ctx, c.projectID, option.WithCredentialsFile(c.googleJSONFile))
 	if nil != err {
 		log.Fatal("failed to initialize google publisher", err)
 	}
 
-	if cluster == "" {
+	if c.cluster == "" {
 		log.Fatalln("cluster name cannot empty")
+	}
+	if maxPubSubTimeout < timeout || 0 >= timeout {
+		timeout = maxPubSubTimeout
 	}
 
 	return &googleWorker{
 		c:         client,
-		projectID: projectID,
+		projectID: c.projectID,
 		pub: newGooglePub(&config{
-			projectID:      projectID,
-			googleJSONFile: credFile,
-			cluster:        cluster,
+			projectID:      c.projectID,
+			googleJSONFile: c.googleJSONFile,
+			cluster:        c.cluster,
 		}),
 		maxOutstanding: maxInFlight,
-		cluster:        cluster,
+		cluster:        c.cluster,
+		timeout:        timeout,
 	}
 }
 
@@ -64,7 +72,7 @@ func (g *googleWorker) Consume(name, topic string, maxRequeue int, handler gobro
 					if nil != err {
 						// error usually race condition of creating new topic
 						// let this continue to retry
-						log.Println("worker failed to create new topic", err)
+						log.Println("worker failed to create new topic:", err)
 						continue
 					}
 				}
@@ -74,12 +82,12 @@ func (g *googleWorker) Consume(name, topic string, maxRequeue int, handler gobro
 				if nil != err {
 					// error usually race condition of creating new subscriber
 					// let this continue to retry
-					log.Println("worker failed to create new subscription", err)
+					log.Println("worker failed to create new subscription:", err)
 					continue
 				}
 			}
 		} else {
-			log.Println("worker failed to initialize", err)
+			log.Println("worker failed to initialize:", err)
 			g.Stop()
 			break
 		}
@@ -91,6 +99,9 @@ func (g *googleWorker) Consume(name, topic string, maxRequeue int, handler gobro
 		sub.ReceiveSettings = pubsub.ReceiveSettings{
 			MaxOutstandingMessages: maxOutstanding,
 		}
+		sub.Update(ctx, pubsub.SubscriptionConfigToUpdate{
+			AckDeadline: g.timeout,
+		})
 
 		log.Printf("worker connection initialized: topic[%s] consumer[%s]\n", topicName, subName)
 		cctx, cancel := context.WithCancel(ctx)
