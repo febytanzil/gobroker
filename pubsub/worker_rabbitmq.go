@@ -20,12 +20,12 @@ type rabbitMQWorker struct {
 	retry     int
 }
 
-func newRabbitMQWorker(server, vhost string, maxInFlight, retry int) *rabbitMQWorker {
+func newRabbitMQWorker(c *config, maxInFlight int) *rabbitMQWorker {
 	return &rabbitMQWorker{
-		server: server,
-		host:   vhost,
+		server: c.serverURL,
+		host:   c.vHost,
 		qos:    maxInFlight,
-		retry:  retry,
+		retry:  c.retry,
 	}
 }
 

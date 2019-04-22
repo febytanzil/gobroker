@@ -62,7 +62,7 @@ func (d *defaultSubscriber) Start() {
 	switch d.impl {
 	case gobroker.RabbitMQ:
 		for i, v := range d.subs {
-			d.workers[i] = newRabbitMQWorker(d.c.serverURL, d.c.vHost, v.MaxInFlight, d.c.retry)
+			d.workers[i] = newRabbitMQWorker(d.c, v.MaxInFlight)
 			d.run(i, v)
 		}
 	case gobroker.Google:
