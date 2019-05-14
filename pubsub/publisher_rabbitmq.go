@@ -2,11 +2,12 @@ package pubsub
 
 import (
 	"encoding/json"
-	"github.com/streadway/amqp"
 	"log"
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/streadway/amqp"
 )
 
 type rabbitMQPub struct {
@@ -126,8 +127,9 @@ func (r *rabbitMQPub) listen(msgs <-chan rabbitMQPubMsg) {
 		}
 
 		err = ch.Publish(one.exchange, "", false, false, amqp.Publishing{
-			Body:    one.body,
-			Headers: one.headers,
+			DeliveryMode: amqp.Persistent,
+			Body:         one.body,
+			Headers:      one.headers,
 		})
 
 		go func(m rabbitMQPubMsg, err error) {
