@@ -2,12 +2,12 @@ package pubsub
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"sync"
 
 	"cloud.google.com/go/pubsub"
+	"github.com/febytanzil/gobroker"
 	"google.golang.org/api/option"
 )
 
@@ -16,6 +16,7 @@ type googlePub struct {
 	topics  *sync.Map
 	m       sync.Mutex
 	cluster string
+	codec   gobroker.Codec
 }
 
 func newGooglePub(cfg *config) *googlePub {
@@ -33,11 +34,12 @@ func newGooglePub(cfg *config) *googlePub {
 		c:       client,
 		topics:  &sync.Map{},
 		cluster: cfg.cluster,
+		codec:   cfg.codec,
 	}
 }
 
 func (g *googlePub) Publish(topic string, message interface{}) error {
-	data, err := json.Marshal(message)
+	data, err := g.codec.Encode(message)
 	if nil != err {
 		return err
 	}

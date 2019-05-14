@@ -1,6 +1,8 @@
 package pubsub
 
-import "github.com/febytanzil/gobroker"
+import (
+	"github.com/febytanzil/gobroker"
+)
 
 // Publisher provides adapter to publish message
 type Publisher interface {
@@ -12,6 +14,10 @@ func NewPublisher(impl gobroker.Implementation, options ...Option) Publisher {
 	c := &config{}
 	for _, o := range options {
 		o(c)
+	}
+	if nil == c.codec {
+		c.codec = gobroker.StdJSONCodec
+		c.contentType = "application/json"
 	}
 
 	switch impl {

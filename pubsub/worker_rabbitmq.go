@@ -18,6 +18,7 @@ type rabbitMQWorker struct {
 	isStopped int32
 	qos       int
 	retry     int
+	codec     gobroker.Codec
 }
 
 func newRabbitMQWorker(c *config, maxInFlight int) *rabbitMQWorker {
@@ -26,6 +27,7 @@ func newRabbitMQWorker(c *config, maxInFlight int) *rabbitMQWorker {
 		host:   c.vHost,
 		qos:    maxInFlight,
 		retry:  c.retry,
+		codec:  c.codec,
 	}
 }
 
@@ -66,9 +68,12 @@ func (r *rabbitMQWorker) Consume(queue, exchange string, maxRequeue int, handler
 				}
 			}
 
+			decoded, _ := r.codec.Decode(msg.Body)
 			err = handler(&gobroker.Message{
-				Body:     msg.Body,
-				Attempts: int(count),
+				Body:        msg.Body,
+				DecodedBody: decoded,
+				Attempts:    int(count),
+				ContentType: msg.ContentType,
 			})
 			if nil != err {
 				count++
@@ -170,6 +175,7 @@ func (r *rabbitMQWorker) initConn(queue, exchange string) error {
 	p := newRabbitMQPub(&config{
 		serverURL: r.server,
 		vHost:     r.host,
+		codec:     r.codec,
 	})
 
 	r.conn = conn
