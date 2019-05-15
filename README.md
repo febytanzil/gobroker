@@ -1,6 +1,5 @@
 [![Build Status](https://travis-ci.com/febytanzil/gobroker.svg?branch=master)](https://travis-ci.com/febytanzil/gobroker)
 [![GitHub release](https://img.shields.io/github/release/febytanzil/gobroker.svg)](https://GitHub.com/febytanzil/gobroker/releases/)
-[![GitHub tag](https://img.shields.io/github/tag/febytanzil/gobroker.svg)](https://GitHub.com/febytanzil/gobroker/tags/)
 [![GitHub license](https://img.shields.io/github/license/febytanzil/gobroker.svg)](https://github.com/febytanzil/gobroker/blob/master/LICENSE)
 # gobroker
 wrapper for all (to-be) kinds of message brokers (go v1.9.x or later)
@@ -39,10 +38,12 @@ p.Publish("test.fanout", "msg"+t.String())
 // register RabbitMQ subscriber(s) & run it
 s := pubsub.NewSubscriber(gobroker.RabbitMQ, []*pubsub.SubHandler{
     {
-        Name:       "test",
-        Topic:      "test.fanout",
-        Handler:    testRMQ,
-        MaxRequeue: 10,
+        Name:        "test.consumer",
+        Topic:       "test.fanout",
+        Handler:     testRMQ,
+        MaxRequeue:  10,
+        Concurrent:  2,
+        MaxInFlight: 3,
     },
 }, pubsub.RabbitMQAMQP("amqp://guest:guest@localhost:5672/", "vhost"))
 
@@ -59,10 +60,13 @@ p.Publish("test", "msg"+t.String())
 // register Google subscriber(s) & run it
 s := pubsub.NewSubscriber(gobroker.Google, []*pubsub.SubHandler{
 		{
-			Name:       "consumer-test",
-			Topic:      "test",
-			Handler:    testGoogle,
-			MaxRequeue: 10,
+			Name:        "consumer-test",
+            Topic:       "test-topic",
+            Handler:     testGoogle,
+            MaxRequeue:  10,
+            Concurrent:  3,
+            Timeout:     10 * time.Minute,
+            MaxInFlight: 1,
 		},
 	},
 		pubsub.GoogleJSONFile("gcp-project-id", "cluster-name", "/path/to/google/application/credentials/cred.json"))
@@ -76,12 +80,20 @@ s.Start()
 // return error will requeue based on config
 
 func testRMQ(msg *gobroker.Message) error {
-	log.Println("consume rabbitmq", string(msg.Body))
+	var encoded string
+	
+    gobroker.StdJSONCodec.Decode(msg.Body, &encoded)
+    log.Println("consume rabbitmq:", encoded)
+	
 	return nil
 }
 func testGoogle(msg *gobroker.Message) error {
-	log.Println("consume google pubsub", string(msg.Body))
-	return errors.New("requeue msg")
+	var encoded string
+	
+    gobroker.StdJSONCodec.Decode(msg.Body, &encoded)
+    log.Println("consume google pubsub", encoded)
+	
+    return errors.New("requeue msg body: " + encoded)
 }
 ```
 

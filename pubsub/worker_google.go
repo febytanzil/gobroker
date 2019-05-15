@@ -119,10 +119,8 @@ func (g *googleWorker) Consume(name, topic string, maxRequeue int, handler gobro
 			if count > maxRequeue {
 				log.Printf("maxRequeue limit msg [%s|%s|%d]\n", subName, string(message.Data), count)
 			} else {
-				decoded, _ := g.codec.Decode(message.Data)
 				handlerErr = handler(&gobroker.Message{
 					Body:        message.Data,
-					DecodedBody: decoded,
 					Attempts:    count,
 					ContentType: g.contentType,
 				})
@@ -150,7 +148,7 @@ func (g *googleWorker) Consume(name, topic string, maxRequeue int, handler gobro
 			}()
 		}
 		<-cctx.Done()
-		log.Println("worker google receive ended")
+		log.Printf("worker google consume stopped: topic[%s] consumer[%s]\n", topicName, subName)
 	}
 }
 

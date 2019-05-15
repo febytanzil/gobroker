@@ -1,4 +1,4 @@
-package pubsub
+package main
 
 import (
 	"errors"
@@ -24,18 +24,22 @@ func mainGoogle() {
 
 	s := pubsub.NewSubscriber(gobroker.Google, []*pubsub.SubHandler{
 		{
-			Name:       "consumer-test1",
-			Topic:      "test",
-			Handler:    testGoogle,
-			MaxRequeue: 10,
-			Concurrent: 2,
+			Name:        "consumer-test1",
+			Topic:       "test",
+			Handler:     testGoogle,
+			MaxRequeue:  10,
+			Concurrent:  2,
+			Timeout:     10 * time.Minute,
+			MaxInFlight: 3,
 		},
 		{
-			Name:       "consumer-test2",
-			Topic:      "test",
-			Handler:    testGoogle2,
-			MaxRequeue: 10,
-			Concurrent: 3,
+			Name:        "fconsumer-test2",
+			Topic:       "test",
+			Handler:     testGoogle2,
+			MaxRequeue:  10,
+			Concurrent:  3,
+			Timeout:     10 * time.Minute,
+			MaxInFlight: 1,
 		},
 	},
 		pubsub.GoogleJSONFile("gcp-project-id", "cluster", "/path/to/google/application/credentials/cred.json"))
@@ -55,11 +59,19 @@ func mainGoogle() {
 }
 
 func testGoogle(msg *gobroker.Message) error {
-	log.Println("consume google pubsub", string(msg.Body))
-	return errors.New("requeue msg")
+	var encoded string
+
+	gobroker.StdJSONCodec.Decode(msg.Body, &encoded)
+	log.Println("consume google pubsub", encoded)
+
+	return errors.New("requeue msg body: " + encoded)
 }
 
 func testGoogle2(msg *gobroker.Message) error {
-	log.Println("consume google pubsub2", string(msg.Body))
+	var encoded string
+
+	gobroker.StdJSONCodec.Decode(msg.Body, &encoded)
+	log.Println("consume google pubsub2:", encoded)
+
 	return nil
 }

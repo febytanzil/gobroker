@@ -7,12 +7,10 @@ var StdJSONCodec = &stdCodec{}
 type stdCodec struct {
 }
 
-func (j *stdCodec) Decode(data []byte) (interface{}, error) {
-	var i interface{}
-	err := json.Unmarshal(data, &i)
-	return i, err
+func (j *stdCodec) Decode(src []byte, dst interface{}) error {
+	return json.Unmarshal(src, dst)
 }
 
-func (j *stdCodec) Encode(v interface{}) ([]byte, error) {
-	return json.Marshal(v)
+func (j *stdCodec) Encode(src interface{}) ([]byte, error) {
+	return json.Marshal(src)
 }

@@ -68,10 +68,8 @@ func (r *rabbitMQWorker) Consume(queue, exchange string, maxRequeue int, handler
 				}
 			}
 
-			decoded, _ := r.codec.Decode(msg.Body)
 			err = handler(&gobroker.Message{
 				Body:        msg.Body,
-				DecodedBody: decoded,
 				Attempts:    int(count),
 				ContentType: msg.ContentType,
 			})
@@ -99,7 +97,7 @@ func (r *rabbitMQWorker) Consume(queue, exchange string, maxRequeue int, handler
 
 			msg.Ack(false)
 		}
-		log.Println("worker rabbitmq deliver ended")
+		log.Printf("worker rabbitmq consume stopped: exchange[%s] queue[%s]\n", exchange, queue)
 	}
 }
 
