@@ -1,4 +1,4 @@
-package main
+package pubsub
 
 import (
 	"github.com/febytanzil/gobroker"
