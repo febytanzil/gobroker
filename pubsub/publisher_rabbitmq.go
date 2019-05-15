@@ -1,12 +1,13 @@
 package pubsub
 
 import (
-	"github.com/febytanzil/gobroker"
-	"github.com/streadway/amqp"
 	"log"
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/febytanzil/gobroker"
+	"github.com/streadway/amqp"
 )
 
 type rabbitMQPub struct {
@@ -130,9 +131,10 @@ func (r *rabbitMQPub) listen(msgs <-chan rabbitMQPubMsg) {
 		}
 
 		err = ch.Publish(one.exchange, "", false, false, amqp.Publishing{
-			Body:        one.body,
-			Headers:     one.headers,
-			ContentType: r.contentType,
+			DeliveryMode: amqp.Persistent,
+			Body:         one.body,
+			Headers:      one.headers,
+			ContentType:  r.contentType,
 		})
 
 		go func(m rabbitMQPubMsg, err error) {
