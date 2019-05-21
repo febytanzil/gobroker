@@ -1,23 +1,25 @@
 package pubsub
 
 import (
-	"encoding/json"
 	"log"
 	"sync"
 	"sync/atomic"
 	"time"
 
+	"github.com/febytanzil/gobroker"
 	"github.com/streadway/amqp"
 )
 
 type rabbitMQPub struct {
-	conn    *amqp.Connection
-	channel *sync.Map
-	m       *sync.Mutex
-	cm      *sync.Mutex
-	msgQ    chan rabbitMQPubMsg
-	config  *config
-	state   int32
+	conn        *amqp.Connection
+	channel     *sync.Map
+	m           *sync.Mutex
+	cm          *sync.Mutex
+	msgQ        chan rabbitMQPubMsg
+	config      *config
+	state       int32
+	codec       gobroker.Codec
+	contentType string
 }
 
 type futurePublish struct {
@@ -39,11 +41,13 @@ const (
 
 func newRabbitMQPub(cfg *config) *rabbitMQPub {
 	return &rabbitMQPub{
-		channel: &sync.Map{},
-		config:  cfg,
-		m:       &sync.Mutex{},
-		cm:      &sync.Mutex{},
-		msgQ:    make(chan rabbitMQPubMsg),
+		channel:     &sync.Map{},
+		config:      cfg,
+		m:           &sync.Mutex{},
+		cm:          &sync.Mutex{},
+		msgQ:        make(chan rabbitMQPubMsg),
+		codec:       cfg.codec,
+		contentType: cfg.contentType,
 	}
 }
 
@@ -100,7 +104,7 @@ func (r *rabbitMQPub) purgeChannel() (err error) {
 }
 
 func (r *rabbitMQPub) Publish(exchange string, message interface{}) error {
-	body, err := json.Marshal(message)
+	body, err := r.codec.Encode(message)
 	if nil != err {
 		return err
 	}
@@ -130,6 +134,7 @@ func (r *rabbitMQPub) listen(msgs <-chan rabbitMQPubMsg) {
 			DeliveryMode: amqp.Persistent,
 			Body:         one.body,
 			Headers:      one.headers,
+			ContentType:  r.contentType,
 		})
 
 		go func(m rabbitMQPubMsg, err error) {

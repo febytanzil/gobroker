@@ -22,11 +22,12 @@ func mainRMQ() {
 
 	s := pubsub.NewSubscriber(gobroker.RabbitMQ, []*pubsub.SubHandler{
 		{
-			Name:       "test",
-			Topic:      "test.fanout",
-			Handler:    testRMQ,
-			MaxRequeue: 10,
-			Concurrent: 2,
+			Name:        "test",
+			Topic:       "test.fanout",
+			Handler:     testRMQ,
+			MaxRequeue:  10,
+			Concurrent:  2,
+			MaxInFlight: 3,
 		},
 	}, pubsub.RabbitMQAMQP("amqp://guest:guest@localhost:5672/", "vhost"))
 
@@ -45,6 +46,10 @@ func mainRMQ() {
 }
 
 func testRMQ(msg *gobroker.Message) error {
-	log.Println("consume rabbitmq", string(msg.Body))
+	var encoded string
+
+	gobroker.StdJSONCodec.Decode(msg.Body, &encoded)
+	log.Println("consume rabbitmq:", encoded)
+
 	return nil
 }

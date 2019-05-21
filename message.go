@@ -2,8 +2,9 @@ package gobroker
 
 // Message encapsulates actual message being sent & published by message broker
 type Message struct {
-	Body     []byte
-	Attempts int
+	Body        []byte
+	Attempts    int
+	ContentType string
 }
 
 // Handler defines how client should handle incoming messages as subscriber

@@ -21,6 +21,8 @@ type googleWorker struct {
 	pub            *googlePub
 	maxOutstanding int
 	timeout        time.Duration
+	codec          gobroker.Codec
+	contentType    string
 }
 
 const maxPubSubTimeout = 10 * time.Minute
@@ -46,10 +48,13 @@ func newGoogleWorker(c *config, maxInFlight int, timeout time.Duration) *googleW
 			projectID:      c.projectID,
 			googleJSONFile: c.googleJSONFile,
 			cluster:        c.cluster,
+			codec:          c.codec,
 		}),
 		maxOutstanding: maxInFlight,
 		cluster:        c.cluster,
 		timeout:        timeout,
+		codec:          c.codec,
+		contentType:    c.contentType,
 	}
 }
 
@@ -115,8 +120,9 @@ func (g *googleWorker) Consume(name, topic string, maxRequeue int, handler gobro
 				log.Printf("maxRequeue limit msg [%s|%s|%d]\n", subName, string(message.Data), count)
 			} else {
 				handlerErr = handler(&gobroker.Message{
-					Body:     message.Data,
-					Attempts: count,
+					Body:        message.Data,
+					Attempts:    count,
+					ContentType: g.contentType,
 				})
 				if nil != handlerErr {
 					count++
@@ -142,7 +148,7 @@ func (g *googleWorker) Consume(name, topic string, maxRequeue int, handler gobro
 			}()
 		}
 		<-cctx.Done()
-		log.Println("worker google receive ended")
+		log.Printf("worker google consume stopped: topic[%s] consumer[%s]\n", topicName, subName)
 	}
 }
 

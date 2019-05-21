@@ -48,6 +48,11 @@ func NewSubscriber(impl gobroker.Implementation, handlers []*SubHandler, options
 	for _, o := range options {
 		o(c)
 	}
+	if nil == c.codec {
+		c.codec = gobroker.StdJSONCodec
+		c.contentType = "application/json"
+	}
+
 	s := &defaultSubscriber{
 		c:    c,
 		subs: handlers,

@@ -1,5 +1,7 @@
 package pubsub
 
+import "github.com/febytanzil/gobroker"
+
 // Option configures Publisher & Subscriber
 type Option func(c *config)
 
@@ -27,6 +29,12 @@ type config struct {
 	// retry counts maximum retry attempts to reconnect to server
 	// 0 means unlimited retry
 	retry int
+
+	// codec is a coder-decoder for message body
+	codec gobroker.Codec
+
+	// contentType defines body content-type contract
+	contentType string
 }
 
 // RabbitMQAMQP configures Publisher & Subscriber for RabbitMQ connection
@@ -62,5 +70,13 @@ func MaxReconnect(retry int) Option {
 			retry = 3
 		}
 		c.retry = retry
+	}
+}
+
+// ContentType configures custom content-type for message body along with its codec
+func ContentType(name string, codec gobroker.Codec) Option {
+	return func(c *config) {
+		c.codec = codec
+		c.contentType = name
 	}
 }
