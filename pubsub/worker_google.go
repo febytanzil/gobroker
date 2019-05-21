@@ -14,20 +14,21 @@ import (
 )
 
 type googleWorker struct {
-	c              *pubsub.Client
-	projectID      string
-	cluster        string
-	isStopped      int32
-	pub            *googlePub
-	maxOutstanding int
-	timeout        time.Duration
-	codec          gobroker.Codec
-	contentType    string
+	c                   *pubsub.Client
+	projectID           string
+	cluster             string
+	isStopped           int32
+	pub                 *googlePub
+	maxOutstanding      int
+	timeout             time.Duration
+	timeoutMaxExtension time.Duration
+	codec               gobroker.Codec
+	contentType         string
 }
 
 const maxPubSubTimeout = 10 * time.Minute
 
-func newGoogleWorker(c *config, maxInFlight int, timeout time.Duration) *googleWorker {
+func newGoogleWorker(c *config, maxInFlight int, timeout, timeoutMaxExtension time.Duration) *googleWorker {
 	ctx := context.Background()
 	client, err := pubsub.NewClient(ctx, c.projectID, option.WithCredentialsFile(c.googleJSONFile))
 	if nil != err {
@@ -50,11 +51,12 @@ func newGoogleWorker(c *config, maxInFlight int, timeout time.Duration) *googleW
 			cluster:        c.cluster,
 			codec:          c.codec,
 		}),
-		maxOutstanding: maxInFlight,
-		cluster:        c.cluster,
-		timeout:        timeout,
-		codec:          c.codec,
-		contentType:    c.contentType,
+		maxOutstanding:      maxInFlight,
+		cluster:             c.cluster,
+		timeout:             timeout,
+		timeoutMaxExtension: timeoutMaxExtension,
+		codec:               c.codec,
+		contentType:         c.contentType,
 	}
 }
 
@@ -102,6 +104,7 @@ func (g *googleWorker) Consume(name, topic string, maxRequeue int, handler gobro
 			maxOutstanding = g.maxOutstanding
 		}
 		sub.ReceiveSettings = pubsub.ReceiveSettings{
+			MaxExtension:           g.timeoutMaxExtension,
 			MaxOutstandingMessages: maxOutstanding,
 		}
 		sub.Update(ctx, pubsub.SubscriptionConfigToUpdate{
