@@ -102,13 +102,11 @@ func (g *googleWorker) Consume(name, topic string, maxRequeue int, handler gobro
 		var timeOut, timeOutExtension time.Duration
 		if g.timeout <= 0 {
 			timeOut = maxPubSubTimeout
-			timeOutExtension = maxPubSubTimeout
 		} else if g.timeout > maxPubSubTimeout {
 			timeOut = maxPubSubTimeout
 			timeOutExtension = g.timeout - maxPubSubTimeout
 		} else {
 			timeOut = g.timeout
-			timeOutExtension = g.timeout
 		}
 
 		sub.ReceiveSettings = pubsub.ReceiveSettings{
