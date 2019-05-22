@@ -14,21 +14,20 @@ import (
 )
 
 type googleWorker struct {
-	c                   *pubsub.Client
-	projectID           string
-	cluster             string
-	isStopped           int32
-	pub                 *googlePub
-	maxOutstanding      int
-	timeout             time.Duration
-	timeoutMaxExtension time.Duration
-	codec               gobroker.Codec
-	contentType         string
+	c              *pubsub.Client
+	projectID      string
+	cluster        string
+	isStopped      int32
+	pub            *googlePub
+	maxOutstanding int
+	timeout        time.Duration
+	codec          gobroker.Codec
+	contentType    string
 }
 
 const maxPubSubTimeout = 10 * time.Minute
 
-func newGoogleWorker(c *config, maxInFlight int, timeout, timeoutMaxExtension time.Duration) *googleWorker {
+func newGoogleWorker(c *config, maxInFlight int, timeout time.Duration) *googleWorker {
 	ctx := context.Background()
 	client, err := pubsub.NewClient(ctx, c.projectID, option.WithCredentialsFile(c.googleJSONFile))
 	if nil != err {
@@ -37,9 +36,6 @@ func newGoogleWorker(c *config, maxInFlight int, timeout, timeoutMaxExtension ti
 
 	if c.cluster == "" {
 		log.Fatalln("cluster name cannot empty")
-	}
-	if maxPubSubTimeout < timeout || 0 >= timeout {
-		timeout = maxPubSubTimeout
 	}
 
 	return &googleWorker{
@@ -51,12 +47,11 @@ func newGoogleWorker(c *config, maxInFlight int, timeout, timeoutMaxExtension ti
 			cluster:        c.cluster,
 			codec:          c.codec,
 		}),
-		maxOutstanding:      maxInFlight,
-		cluster:             c.cluster,
-		timeout:             timeout,
-		timeoutMaxExtension: timeoutMaxExtension,
-		codec:               c.codec,
-		contentType:         c.contentType,
+		maxOutstanding: maxInFlight,
+		cluster:        c.cluster,
+		timeout:        timeout,
+		codec:          c.codec,
+		contentType:    c.contentType,
 	}
 }
 
@@ -103,12 +98,25 @@ func (g *googleWorker) Consume(name, topic string, maxRequeue int, handler gobro
 		if 0 < g.maxOutstanding {
 			maxOutstanding = g.maxOutstanding
 		}
+
+		var timeOut, timeOutExtension time.Duration
+		if g.timeout <= 0 {
+			timeOut = maxPubSubTimeout
+			timeOutExtension = maxPubSubTimeout
+		} else if g.timeout > maxPubSubTimeout {
+			timeOut = maxPubSubTimeout
+			timeOutExtension = g.timeout - maxPubSubTimeout
+		} else {
+			timeOut = g.timeout
+			timeOutExtension = g.timeout
+		}
+
 		sub.ReceiveSettings = pubsub.ReceiveSettings{
-			MaxExtension:           g.timeoutMaxExtension,
+			MaxExtension:           timeOutExtension,
 			MaxOutstandingMessages: maxOutstanding,
 		}
 		sub.Update(ctx, pubsub.SubscriptionConfigToUpdate{
-			AckDeadline: g.timeout,
+			AckDeadline: timeOut,
 		})
 
 		log.Printf("worker connection initialized: topic[%s] consumer[%s]\n", topicName, subName)
