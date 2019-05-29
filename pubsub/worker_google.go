@@ -104,7 +104,7 @@ func (g *googleWorker) Consume(name, topic string, maxRequeue int, handler gobro
 			timeOut = maxPubSubTimeout
 		} else if g.timeout > maxPubSubTimeout {
 			timeOut = maxPubSubTimeout
-			timeOutExtension = g.timeout - maxPubSubTimeout
+			timeOutExtension = time.Duration(int64(g.timeout/maxPubSubTimeout) * int64(maxPubSubTimeout))
 		} else {
 			timeOut = g.timeout
 		}
