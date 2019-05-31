@@ -59,17 +59,17 @@ p.Publish("test", "msg"+t.String())
 ```go
 // register Google subscriber(s) & run it
 s := pubsub.NewSubscriber(gobroker.Google, []*pubsub.SubHandler{
-		{
-			Name:        "consumer-test",
+        {
+            Name:        "consumer-test",
             Topic:       "test-topic",
             Handler:     testGoogle,
             MaxRequeue:  10,
             Concurrent:  3,
             Timeout:     10 * time.Minute,
             MaxInFlight: 1,
-		},
-	},
-		pubsub.GoogleJSONFile("gcp-project-id", "cluster-name", "/path/to/google/application/credentials/cred.json"))
+        },
+    },
+    pubsub.GoogleJSONFile("gcp-project-id", "cluster-name", "/path/to/google/application/credentials/cred.json"))
 		
 s.Start()
 ```
@@ -80,19 +80,19 @@ s.Start()
 // return error will requeue based on config
 
 func testRMQ(msg *gobroker.Message) error {
-	var encoded string
-	
+    var encoded string
+    
     gobroker.StdJSONCodec.Decode(msg.Body, &encoded)
     log.Println("consume rabbitmq:", encoded)
-	
-	return nil
+    
+    return nil
 }
 func testGoogle(msg *gobroker.Message) error {
-	var encoded string
-	
+    var encoded string
+    
     gobroker.StdJSONCodec.Decode(msg.Body, &encoded)
     log.Println("consume google pubsub", encoded)
-	
+    
     return errors.New("requeue msg body: " + encoded)
 }
 ```
@@ -106,3 +106,5 @@ Please use a fork to create a pull request
 ## Contributors
 - [ichsanrp](https://github.com/ichsanrp)
 - [jonathanhaposan](https://github.com/jonathanhaposan)
+- [budiryan](https://github.com/budiryan)
+- [utomorezeki](https://github.com/utomorezeki)
