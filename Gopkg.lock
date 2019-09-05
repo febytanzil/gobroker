@@ -2,9 +2,10 @@
 
 
 [[projects]]
-  digest = "1:297d75d304ac69c0d523d748a4e5f9f93360626d75174f82815ca3bbacf2706d"
+  digest = "1:ce2d87ddeb0d86fe78d370b95b9d093f6e02d7166c3cc95dd102a0849f179e9f"
   name = "cloud.google.com/go"
   packages = [
+    ".",
     "compute/metadata",
     "iam",
     "internal/optional",
@@ -14,15 +15,39 @@
     "pubsub/internal/distribution",
   ]
   pruneopts = "UT"
-  revision = "74b12019e2aa53ec27882158f59192d7cd6d1998"
-  version = "v0.33.1"
+  revision = "d1af076dc3f6a314e9dd6610fe83b0f7afaff6d6"
+  version = "v0.45.1"
 
 [[projects]]
-  digest = "1:19e1717be26f549febea402e08b46db7919d164324a24ff67e0c81dfb11316b8"
+  digest = "1:9f3b30d9f8e0d7040f729b82dcbc8f0dead820a133b3147ce355fc451f32d761"
+  name = "github.com/BurntSushi/toml"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "3012a1dbe2e4bd1391d42b32f0577cb7bbc7f005"
+  version = "v0.3.1"
+
+[[projects]]
+  digest = "1:333522e2f8406244e91ddd80655cdb3ab7a4e2940895d085b5068cea8050086a"
+  name = "github.com/febytanzil/gobroker"
+  packages = [
+    ".",
+    "pubsub",
+  ]
+  pruneopts = "UT"
+  revision = "52e5971696d8177138907aae6a4ab6903afd17d9"
+  version = "v0.1.0"
+
+[[projects]]
+  digest = "1:54a9254d3845e3a80d4957975abfc5e771a49d08379509ec4f9c99c1ccbe13a9"
   name = "github.com/golang/protobuf"
   packages = [
     "proto",
+    "protoc-gen-go",
     "protoc-gen-go/descriptor",
+    "protoc-gen-go/generator",
+    "protoc-gen-go/generator/internal/remap",
+    "protoc-gen-go/grpc",
+    "protoc-gen-go/plugin",
     "ptypes",
     "ptypes/any",
     "ptypes/duration",
@@ -34,12 +59,24 @@
   version = "v1.2.0"
 
 [[projects]]
-  digest = "1:e04cc716992a302cacf6d726409a05aa9546241998b24356d6dd0f01bc5a374e"
+  digest = "1:5e8f73a8323746973118b6d3f1527395c864238b299046d6a4ae764908ab7498"
   name = "github.com/googleapis/gax-go"
-  packages = ["."]
+  packages = ["v2"]
   pruneopts = "UT"
   revision = "b001040cd31805261cbd978842099e326dfa857b"
   version = "v2.0.2"
+
+[[projects]]
+  branch = "master"
+  digest = "1:89e34854f4513cb0c53ada9ba52e680b8b74a370b33b3a26800a4cdbc9f00ced"
+  name = "github.com/jstemmer/go-junit-report"
+  packages = [
+    ".",
+    "formatter",
+    "parser",
+  ]
+  pruneopts = "UT"
+  revision = "af01ea7f8024089b458d804d5cdf190f962a9a0c"
 
 [[projects]]
   branch = "master"
@@ -72,6 +109,28 @@
   pruneopts = "UT"
   revision = "b7bf3cdb64150a8c8c53b769fdeb2ba581bd4d4b"
   version = "v0.18.0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:691f3a202dd569bd0d33b8b16bcb390a479b3c6ccc8ced9cb13085e47030e11a"
+  name = "golang.org/x/exp"
+  packages = [
+    "apidiff",
+    "cmd/apidiff",
+  ]
+  pruneopts = "UT"
+  revision = "c13cbed26979984b7dddd468b78daf72f8b4b473"
+
+[[projects]]
+  branch = "master"
+  digest = "1:134674d729e1afbae39eeaa6abcf8e5f3106338f83643394ab5205a020efbd9b"
+  name = "golang.org/x/lint"
+  packages = [
+    ".",
+    "golint",
+  ]
+  pruneopts = "UT"
+  revision = "959b441ac422379a43da2230f62be024250818b0"
 
 [[projects]]
   branch = "master"
@@ -145,6 +204,32 @@
   pruneopts = "UT"
   revision = "f21a4dfb5e38f5895301dc265a8def02365cc3d0"
   version = "v0.3.0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:757bd261b78937c0aeed0b7c12265e0ed79880a7e62f319ea9f1c5777d431d38"
+  name = "golang.org/x/tools"
+  packages = [
+    "cmd/goimports",
+    "go/analysis",
+    "go/analysis/passes/inspect",
+    "go/ast/astutil",
+    "go/ast/inspector",
+    "go/buildutil",
+    "go/gcexportdata",
+    "go/internal/gcimporter",
+    "go/internal/packagesdriver",
+    "go/packages",
+    "go/types/objectpath",
+    "go/types/typeutil",
+    "internal/fastwalk",
+    "internal/gopathwalk",
+    "internal/imports",
+    "internal/module",
+    "internal/semver",
+  ]
+  pruneopts = "UT"
+  revision = "adb45749da8e536f7cc9ab862ecba1bd0235c192"
 
 [[projects]]
   branch = "master"
@@ -235,11 +320,47 @@
   revision = "2e463a05d100327ca47ac218281906921038fd95"
   version = "v1.16.0"
 
+[[projects]]
+  digest = "1:131158a88aad1f94854d0aa21a64af2802d0a470fb0f01cb33c04fafd2047111"
+  name = "honnef.co/go/tools"
+  packages = [
+    "arg",
+    "cmd/staticcheck",
+    "config",
+    "deprecated",
+    "facts",
+    "functions",
+    "go/types/typeutil",
+    "internal/cache",
+    "internal/passes/buildssa",
+    "internal/renameio",
+    "internal/sharedcheck",
+    "lint",
+    "lint/lintdsl",
+    "lint/lintutil",
+    "lint/lintutil/format",
+    "loader",
+    "printf",
+    "simple",
+    "ssa",
+    "ssautil",
+    "staticcheck",
+    "staticcheck/vrp",
+    "stylecheck",
+    "unused",
+    "version",
+  ]
+  pruneopts = "UT"
+  revision = "afd67930eec2a9ed3e9b19f684d17a062285f16a"
+  version = "2019.2.3"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
     "cloud.google.com/go/pubsub",
+    "github.com/febytanzil/gobroker",
+    "github.com/febytanzil/gobroker/pubsub",
     "github.com/streadway/amqp",
     "google.golang.org/api/option",
   ]
