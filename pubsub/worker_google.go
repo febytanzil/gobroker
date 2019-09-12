@@ -114,7 +114,8 @@ func (g *googleWorker) Consume(name, topic string, maxRequeue int, handler gobro
 			MaxOutstandingMessages: maxOutstanding,
 		}
 		sub.Update(ctx, pubsub.SubscriptionConfigToUpdate{
-			AckDeadline: timeOut,
+			AckDeadline:      timeOut,
+			ExpirationPolicy: time.Duration(0),
 		})
 
 		log.Printf("worker connection initialized: topic[%s] consumer[%s]\n", topicName, subName)
