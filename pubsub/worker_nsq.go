@@ -36,6 +36,9 @@ func newNSQWorker(c *config, s *SubHandler) *nsqWorker {
 
 func (n *nsqWorker) Consume(name, topic string, maxRequeue int, handler gobroker.Handler) {
 	retries := 0
+	if 0 >= n.concurrent {
+		n.concurrent = 1
+	}
 	n.channel.AddConcurrentHandlers(n.nsqMiddleware(handler), n.concurrent)
 
 	for {
