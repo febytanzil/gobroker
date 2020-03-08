@@ -23,7 +23,7 @@ type rabbitMQWorker struct {
 
 func newRabbitMQWorker(c *config, maxInFlight int) *rabbitMQWorker {
 	return &rabbitMQWorker{
-		server: c.serverURLs[0],
+		server: c.serverURL,
 		host:   c.vHost,
 		qos:    maxInFlight,
 		retry:  c.retry,
@@ -171,9 +171,9 @@ func (r *rabbitMQWorker) initConn(queue, exchange string) error {
 		return err
 	}
 	p := newRabbitMQPub(&config{
-		serverURLs: []string{r.server},
-		vHost:      r.host,
-		codec:      r.codec,
+		serverURL: r.server,
+		vHost:     r.host,
+		codec:     r.codec,
 	})
 
 	r.conn = conn

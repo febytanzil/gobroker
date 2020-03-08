@@ -18,3 +18,11 @@ func (n *nsqPub) Publish(topic string, message interface{}) error {
 
 	return n.p.Publish(topic, data)
 }
+
+func newNSQPub(cfg *config) *nsqPub {
+	prod, _ := nsq.NewProducer(cfg.serverURL, nsq.NewConfig())
+	return &nsqPub{
+		p:     prod,
+		codec: cfg.codec,
+	}
+}

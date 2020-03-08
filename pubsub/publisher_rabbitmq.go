@@ -179,7 +179,7 @@ func (r *rabbitMQPub) connect() error {
 		return nil
 	}
 
-	conn, err := amqp.DialConfig(r.config.serverURLs[0], amqp.Config{
+	conn, err := amqp.DialConfig(r.config.serverURL, amqp.Config{
 		Heartbeat: 10 * time.Second,
 		Vhost:     r.config.vHost,
 	})

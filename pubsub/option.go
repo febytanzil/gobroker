@@ -6,9 +6,9 @@ import "github.com/febytanzil/gobroker"
 type Option func(c *config)
 
 type config struct {
-	// serverURLs saves addresses to specify message broker server
+	// serverURL saves server address to specify message broker server
 	// rabbitMQ - AMQP URI format
-	serverURLs []string
+	serverURL string
 
 	// vHost specifies pubsub namespace
 	// rabbitMQ - Virtual Host
@@ -40,7 +40,7 @@ type config struct {
 // RabbitMQAMQP configures Publisher & Subscriber for RabbitMQ connection
 func RabbitMQAMQP(server, vHost string) Option {
 	return func(c *config) {
-		c.serverURLs = append(c.serverURLs, server)
+		c.serverURL = server
 		c.vHost = vHost
 	}
 }
@@ -81,10 +81,8 @@ func ContentType(name string, codec gobroker.Codec) Option {
 	}
 }
 
-func NSQLookupds(addresses ...string) Option {
+func NSQLookupd(address string) Option {
 	return func(c *config) {
-		for _, addr := range addresses {
-			c.serverURLs = append(c.serverURLs, addr)
-		}
+		c.serverURL = address
 	}
 }
