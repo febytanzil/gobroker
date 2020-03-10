@@ -25,6 +25,8 @@ func NewPublisher(impl gobroker.Implementation, options ...Option) Publisher {
 		return newRabbitMQPub(c)
 	case gobroker.Google:
 		return newGooglePub(c)
+	case gobroker.NSQ:
+		return newNSQPub(c)
 	default:
 		return nil
 	}

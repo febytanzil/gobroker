@@ -75,6 +75,11 @@ func (d *defaultSubscriber) Start() {
 			d.workers[i] = newGoogleWorker(d.c, v.MaxInFlight, v.Timeout)
 			d.run(i, v)
 		}
+	case gobroker.NSQ:
+		for i, v := range d.subs {
+			d.workers[i] = newNSQWorker(d.c, v)
+			d.run(i, v)
+		}
 	default:
 
 	}

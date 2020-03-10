@@ -6,7 +6,7 @@ import "github.com/febytanzil/gobroker"
 type Option func(c *config)
 
 type config struct {
-	// serverURL accepts a string to specify message broker server
+	// serverURL saves server address to specify message broker server
 	// rabbitMQ - AMQP URI format
 	serverURL string
 
@@ -78,5 +78,11 @@ func ContentType(name string, codec gobroker.Codec) Option {
 	return func(c *config) {
 		c.codec = codec
 		c.contentType = name
+	}
+}
+
+func NSQLookupd(address string) Option {
+	return func(c *config) {
+		c.serverURL = address
 	}
 }
