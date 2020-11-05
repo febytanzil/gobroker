@@ -30,6 +30,10 @@
   version = "pubsub/1.8.2"
 
 [[constraint]]
+  name = "google.golang.org/grpc"
+  version = "1.33.1"
+
+[[constraint]]
   name = "github.com/golang/mock"
   version = "1.4.4"
 
