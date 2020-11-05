@@ -27,7 +27,7 @@
 
 [[constraint]]
   name = "cloud.google.com/go"
-  version = "0.71.0"
+  version = "pubsub/1.8.2"
 
 [[constraint]]
   name = "github.com/golang/mock"
