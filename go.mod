@@ -8,5 +8,5 @@ require (
 	github.com/nsqio/go-nsq v1.0.8
 	github.com/streadway/amqp v0.0.0-20190827072141-edfb9018d271
 	google.golang.org/api v0.33.0
-	google.golang.org/grpc v1.33.1
+	google.golang.org/grpc v1.32.0
 )
