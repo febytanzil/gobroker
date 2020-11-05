@@ -27,11 +27,7 @@
 
 [[constraint]]
   name = "cloud.google.com/go"
-  version = "pubsub/1.8.2"
-
-[[override]]
-  name = "google.golang.org/grpc"
-  version = "1.32.0"
+  version = "0.71.0"
 
 [[constraint]]
   name = "github.com/golang/mock"
