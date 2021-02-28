@@ -19,6 +19,26 @@ type googlePub struct {
 	codec   gobroker.Codec
 }
 
+type GPSFuture struct {
+	err    error
+	result *pubsub.PublishResult
+	ctx    context.Context
+}
+
+func (g *GPSFuture) Wait() error {
+	if nil != g.err {
+		return g.err
+	}
+
+	if nil != g.result {
+		<-g.result.Ready()
+		_, err := g.result.Get(g.ctx)
+		return err
+	}
+
+	return nil
+}
+
 func newGooglePub(cfg *config) *googlePub {
 	ctx := context.Background()
 	client, err := pubsub.NewClient(ctx, cfg.projectID, option.WithCredentialsFile(cfg.googleJSONFile))
@@ -48,6 +68,28 @@ func (g *googlePub) Publish(topic string, message interface{}) error {
 	return g.publish(topicName, &pubsub.Message{
 		Data: data,
 	})
+}
+
+func (g *googlePub) PublishAsync(topic string, message interface{}) Future {
+	data, err := g.codec.Encode(message)
+	if nil != err {
+		return &GPSFuture{err: err}
+	}
+
+	ctx := context.Background()
+	t, err := g.getTopic(topic)
+	if nil != err {
+		return &GPSFuture{err: err}
+	}
+
+	result := t.Publish(ctx, &pubsub.Message{
+		Data: data,
+	})
+
+	return &GPSFuture{
+		result: result,
+		ctx:    ctx,
+	}
 }
 
 func (g *googlePub) publish(topic string, message *pubsub.Message) error {
