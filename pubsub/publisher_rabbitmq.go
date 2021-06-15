@@ -26,6 +26,21 @@ type futurePublish struct {
 	err error
 }
 
+type RMQFuture struct {
+	err error
+	ftr chan futurePublish
+}
+
+func (r *RMQFuture) Wait() error {
+	if nil != r.err {
+		return r.err
+	}
+	defer close(r.ftr)
+
+	f := <-r.ftr
+	return f.err
+}
+
 type rabbitMQPubMsg struct {
 	exchange string
 	body     []byte
@@ -118,6 +133,22 @@ func (r *rabbitMQPub) Publish(exchange string, message interface{}) error {
 	f := <-future
 
 	return f.err
+}
+
+func (r *rabbitMQPub) PublishAsync(exchange string, message interface{}) Future {
+	body, err := r.codec.Encode(message)
+	if nil != err {
+		return &RMQFuture{err: err}
+	}
+	future := make(chan futurePublish)
+
+	err = r.publish(exchange, body, nil, future)
+	if nil != err {
+		close(future)
+		return &RMQFuture{err: err}
+	}
+
+	return &RMQFuture{ftr: future}
 }
 
 func (r *rabbitMQPub) listen(msgs <-chan rabbitMQPubMsg) {

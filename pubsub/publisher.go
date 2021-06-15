@@ -6,7 +6,15 @@ import (
 
 // Publisher provides adapter to publish message
 type Publisher interface {
+	// Publish publishes a message to a worker pool and might block for broker ack.
 	Publish(topic string, message interface{}) error
+	// PublishAsync publishes a message to a worker pool without waiting for broker ack.
+	PublishAsync(topic string, message interface{}) Future
+}
+
+type Future interface {
+	// Wait waits the broker to ack, will return error from the broker after sent the message if any.
+	Wait() error
 }
 
 // NewPublisher implements adapter instance for Publisher
