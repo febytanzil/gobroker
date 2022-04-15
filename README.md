@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/febytanzil/gobroker.svg?branch=master)](https://travis-ci.com/febytanzil/gobroker)
+[![Build Status](https://circleci.com/gh/febytanzil/gobroker.svg?style=shield)](https://circleci.com/gh/febytanzil/gobroker)
 [![GitHub release](https://img.shields.io/github/release/febytanzil/gobroker.svg)](https://GitHub.com/febytanzil/gobroker/releases/)
 [![GitHub license](https://img.shields.io/github/license/febytanzil/gobroker.svg)](https://github.com/febytanzil/gobroker/blob/master/LICENSE)
 # gobroker
