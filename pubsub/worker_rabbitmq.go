@@ -62,7 +62,7 @@ func (r *rabbitMQWorker) Consume(queue, exchange string, maxRequeue int, handler
 			if _, ok := msg.Headers["requeueCount"]; ok {
 				count, _ = msg.Headers["requeueCount"].(int32)
 				if maxRequeue < int(count) {
-					log.Printf("maxRequeue limit msg [%s|%s|%s|%d]\n", msg.Exchange, queue, string(msg.Body), count)
+					log.Printf("maxRequeue limit msg [%s|%s|%d]\n", msg.Exchange, queue, count)
 					msg.Reject(false)
 					continue
 				}
@@ -82,12 +82,12 @@ func (r *rabbitMQWorker) Consume(queue, exchange string, maxRequeue int, handler
 						"requeueCount": count,
 					}, f)
 					if nil != err {
-						log.Printf("failed to requeue msg [%s|%s|%s|%s|%d] err: %s\n", exchange, queue, msg.AppId, string(msg.Body), count, err)
+						log.Printf("failed to requeue msg [%s|%s|%s|%d] err: %s\n", exchange, queue, msg.AppId, count, err)
 						return
 					}
 					ftr := <-f
 					if nil != ftr.err {
-						log.Printf("failed to requeue msg [%s|%s|%s|%s|%d] err: %s\n", exchange, queue, msg.AppId, string(msg.Body), count, ftr.err)
+						log.Printf("failed to requeue msg [%s|%s|%s|%d] err: %s\n", exchange, queue, msg.AppId, count, ftr.err)
 					}
 				}()
 

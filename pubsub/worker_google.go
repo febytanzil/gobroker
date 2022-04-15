@@ -127,7 +127,7 @@ func (g *googleWorker) Consume(name, topic string, maxRequeue int, handler gobro
 				count, _ = strconv.Atoi(s)
 			}
 			if count > maxRequeue {
-				log.Printf("maxRequeue limit msg [%s|%s|%d]\n", subName, string(message.Data), count)
+				log.Printf("maxRequeue limit msg [%s|%d]\n", subName, count)
 			} else {
 				handlerErr = handler(&gobroker.Message{
 					Body:        message.Data,
@@ -145,7 +145,7 @@ func (g *googleWorker) Consume(name, topic string, maxRequeue int, handler gobro
 						Attributes: message.Attributes,
 					})
 					if nil != err {
-						log.Printf("failed to requeue msg [%s|%s|%s|%d] err: %s\n", subName, message.ID, string(message.Data), count, err)
+						log.Printf("failed to requeue msg [%s|%s|%d] err: %s\n", subName, message.ID, count, err)
 					}
 				}
 			}
