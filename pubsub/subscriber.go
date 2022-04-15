@@ -2,6 +2,7 @@ package pubsub
 
 import (
 	"github.com/febytanzil/gobroker"
+	"log"
 	"time"
 )
 
@@ -39,7 +40,8 @@ type defaultSubscriber struct {
 }
 
 const (
-	defaultMaxRequeue int = 9999
+	defaultMaxRequeue int    = 9999
+	contentJSON       string = "application/json"
 )
 
 // NewSubscriber implements adapter instance for Subscriber
@@ -50,7 +52,7 @@ func NewSubscriber(impl gobroker.Implementation, handlers []*SubHandler, options
 	}
 	if nil == c.codec {
 		c.codec = gobroker.StdJSONCodec
-		c.contentType = "application/json"
+		c.contentType = contentJSON
 	}
 
 	s := &defaultSubscriber{
@@ -100,7 +102,10 @@ func (d *defaultSubscriber) run(index int, sub *SubHandler) {
 func (d *defaultSubscriber) Stop() {
 	for range d.subs {
 		for j := range d.workers {
-			d.workers[j].Stop()
+			err := d.workers[j].Stop()
+			if err != nil {
+				log.Println("failed to stop worker", j)
+			}
 		}
 	}
 }

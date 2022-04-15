@@ -2,7 +2,7 @@
 [![GitHub release](https://img.shields.io/github/release/febytanzil/gobroker.svg)](https://GitHub.com/febytanzil/gobroker/releases/)
 [![GitHub license](https://img.shields.io/github/license/febytanzil/gobroker.svg)](https://github.com/febytanzil/gobroker/blob/master/LICENSE)
 # gobroker
-wrapper for all (to-be) kinds of message brokers (go v1.9.x or later)
+wrapper for all (to-be) kinds of message brokers (go v1.16.x)
 
 ## Supported message brokers & patterns
 ### PubSub
