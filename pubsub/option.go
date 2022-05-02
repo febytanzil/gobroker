@@ -5,6 +5,19 @@ import "github.com/febytanzil/gobroker"
 // Option configures Publisher & Subscriber
 type Option func(c *config)
 
+func configOptions(options ...Option) *config {
+	c := &config{}
+	for _, o := range options {
+		o(c)
+	}
+	if nil == c.codec {
+		c.codec = gobroker.StdJSONCodec
+		c.contentType = "application/json"
+	}
+
+	return c
+}
+
 type config struct {
 	// serverURL saves server address to specify message broker server
 	// rabbitMQ - AMQP URI format

@@ -39,7 +39,8 @@ func (g *GPSFuture) Wait() error {
 	return nil
 }
 
-func newGooglePub(cfg *config) *googlePub {
+func newGooglePub(options ...Option) *googlePub {
+	cfg := configOptions(options...)
 	ctx := context.Background()
 	client, err := pubsub.NewClient(ctx, cfg.projectID, option.WithCredentialsFile(cfg.googleJSONFile))
 	if nil != err {

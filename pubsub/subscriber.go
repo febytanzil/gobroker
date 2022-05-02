@@ -44,7 +44,7 @@ const (
 	contentJSON       string = "application/json"
 )
 
-// NewSubscriber implements adapter instance for Subscriber
+// NewSubscriber returns the subscriber instance based on the desired implementation
 func NewSubscriber(impl gobroker.Implementation, handlers []*SubHandler, options ...Option) Subscriber {
 	c := &config{}
 	for _, o := range options {
