@@ -1,10 +1,11 @@
 package pubsub
 
 import (
-	"github.com/febytanzil/gobroker"
-	"github.com/nsqio/go-nsq"
 	"log"
 	"time"
+
+	"github.com/febytanzil/gobroker"
+	"github.com/nsqio/go-nsq"
 )
 
 type nsqWorker struct {
@@ -70,7 +71,13 @@ func (n *nsqWorker) nsqMiddleware(h gobroker.Handler) nsq.HandlerFunc {
 			ContentType: n.contentType,
 		})
 		if nil != err {
-			m.RequeueWithoutBackoff(time.Minute)
+			switch err.(type) {
+			case *gobroker.DeferredError:
+				dErr := err.(*gobroker.DeferredError)
+				m.RequeueWithoutBackoff(dErr.GetDelay())
+			default:
+				m.RequeueWithoutBackoff(time.Second)
+			}
 			return err
 		}
 

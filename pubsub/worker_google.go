@@ -7,10 +7,11 @@ import (
 	"strconv"
 	"sync/atomic"
 
+	"time"
+
 	"cloud.google.com/go/pubsub"
 	"github.com/febytanzil/gobroker"
 	"google.golang.org/api/option"
-	"time"
 )
 
 type googleWorker struct {
