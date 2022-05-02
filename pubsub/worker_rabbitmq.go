@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/febytanzil/gobroker"
-	"github.com/streadway/amqp"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 type rabbitMQWorker struct {
@@ -72,26 +72,52 @@ func (r *rabbitMQWorker) Consume(queue, exchange string, maxRequeue int, handler
 				Body:        msg.Body,
 				Attempts:    int(count),
 				ContentType: msg.ContentType,
+				Headers:     msg.Headers,
 			})
 			if nil != err {
 				count++
-				go func() {
-					f := make(chan futurePublish)
-					defer close(f)
-					err = r.pub.publish(exchange, msg.Body, amqp.Table{
-						"requeueCount": count,
-					}, f)
-					if nil != err {
-						log.Printf("failed to requeue msg [%s|%s|%s|%d] err: %s\n", exchange, queue, msg.AppId, count, err)
-						return
-					}
-					ftr := <-f
-					if nil != ftr.err {
-						log.Printf("failed to requeue msg [%s|%s|%s|%d] err: %s\n", exchange, queue, msg.AppId, count, ftr.err)
-					}
-				}()
 
-				msg.Reject(false)
+				switch err.(type) {
+				case *gobroker.DeadLetterError:
+					go func() {
+						dlErr := err.(*gobroker.DeadLetterError)
+						f := make(chan futurePublish)
+						defer close(f)
+
+						err = r.pub.publish(dlErr.GetTopic(), msg.Body, amqp.Table{
+							"reason":   dlErr.Error(),
+							"exchange": exchange,
+							"count":    count,
+							"time":     time.Now().Unix(),
+						}, f)
+						if nil != err {
+							log.Printf("failed to dead-letter msg [%s|%s|%s|%d] err: %s\n", exchange, queue, msg.AppId, count, err)
+							return
+						}
+					}()
+
+					msg.Nack(false, false)
+				default:
+					go func() {
+						f := make(chan futurePublish)
+						defer close(f)
+
+						err = r.pub.publish(exchange, msg.Body, amqp.Table{
+							"requeueCount": count,
+						}, f)
+						if nil != err {
+							log.Printf("failed to requeue msg [%s|%s|%s|%d] err: %s\n", exchange, queue, msg.AppId, count, err)
+							return
+						}
+						ftr := <-f
+						if nil != ftr.err {
+							log.Printf("failed to requeue msg [%s|%s|%s|%d] err: %s\n", exchange, queue, msg.AppId, count, ftr.err)
+						}
+					}()
+
+					msg.Reject(false)
+				}
+
 				continue
 			}
 

@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/febytanzil/gobroker"
-	"github.com/streadway/amqp"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 type rabbitMQPub struct {
