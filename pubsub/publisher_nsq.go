@@ -51,7 +51,8 @@ func (n *nsqPub) PublishAsync(topic string, message interface{}) Future {
 	}
 }
 
-func newNSQPub(cfg *config) *nsqPub {
+func newNSQPub(options ...Option) *nsqPub {
+	cfg := configOptions(options...)
 	prod, _ := nsq.NewProducer(cfg.serverURL, nsq.NewConfig())
 	return &nsqPub{
 		p:     prod,

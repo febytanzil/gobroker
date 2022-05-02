@@ -196,11 +196,7 @@ func (r *rabbitMQWorker) initConn(queue, exchange string) error {
 	if nil != err {
 		return err
 	}
-	p := newRabbitMQPub(&config{
-		serverURL: r.server,
-		vHost:     r.host,
-		codec:     r.codec,
-	})
+	p := newRabbitMQPub(RabbitMQAMQP(r.server, r.host), ContentType("", r.codec))
 
 	r.conn = conn
 	r.channel = ch

@@ -40,14 +40,9 @@ func newGoogleWorker(c *config, maxInFlight int, timeout time.Duration) *googleW
 	}
 
 	return &googleWorker{
-		c:         client,
-		projectID: c.projectID,
-		pub: newGooglePub(&config{
-			projectID:      c.projectID,
-			googleJSONFile: c.googleJSONFile,
-			cluster:        c.cluster,
-			codec:          c.codec,
-		}),
+		c:              client,
+		projectID:      c.projectID,
+		pub:            newGooglePub(GoogleJSONFile(c.projectID, c.cluster, c.googleJSONFile), ContentType("", c.codec)),
 		maxOutstanding: maxInFlight,
 		cluster:        c.cluster,
 		timeout:        timeout,

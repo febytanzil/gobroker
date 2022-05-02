@@ -17,24 +17,15 @@ type Future interface {
 	Wait() error
 }
 
-// NewPublisher implements adapter instance for Publisher
+// NewPublisher returns the publisher instance based on the desired implementation
 func NewPublisher(impl gobroker.Implementation, options ...Option) Publisher {
-	c := &config{}
-	for _, o := range options {
-		o(c)
-	}
-	if nil == c.codec {
-		c.codec = gobroker.StdJSONCodec
-		c.contentType = "application/json"
-	}
-
 	switch impl {
 	case gobroker.RabbitMQ:
-		return newRabbitMQPub(c)
+		return newRabbitMQPub(options...)
 	case gobroker.Google:
-		return newGooglePub(c)
+		return newGooglePub(options...)
 	case gobroker.NSQ:
-		return newNSQPub(c)
+		return newNSQPub(options...)
 	default:
 		return nil
 	}

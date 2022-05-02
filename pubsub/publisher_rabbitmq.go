@@ -54,7 +54,8 @@ const (
 	stateConnected
 )
 
-func newRabbitMQPub(cfg *config) *rabbitMQPub {
+func newRabbitMQPub(options ...Option) *rabbitMQPub {
+	cfg := configOptions(options...)
 	return &rabbitMQPub{
 		channel:     &sync.Map{},
 		config:      cfg,
