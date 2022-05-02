@@ -5,6 +5,7 @@ type Message struct {
 	Body        []byte
 	Attempts    int
 	ContentType string
+	Headers     map[string]interface{}
 }
 
 // Handler defines how client should handle incoming messages as subscriber

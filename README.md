@@ -21,9 +21,6 @@ wrapper for all (to-be) kinds of message brokers (go v1.16.x)
 ```bash
 # go get
 $ go get github.com/febytanzil/gobroker
-
-# dep
-$ dep ensure -add github.com/febytanzil/gobroker
 ```
 
 ## Usage
